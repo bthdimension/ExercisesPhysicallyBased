@@ -12,12 +12,12 @@ static const double g = 9.81;
 // functions for function AdvanceTimeStep1
 double springForce1Di(double k, double L, double pj, double pi)
 {
-    return -k * (fabs(pj-pi) - L) * (pj-pi)/fabs(pj-pi);
+    return -k * ((pj-pi) - (-L) ); // * (pj-pi) / fabs(pj-pi);
 }
 
 double dampingForce1Di(double d, double v)
 {
-    return - d * v;
+    return -d * v;
 }
 
 // Exercise 1
@@ -63,7 +63,7 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
     {
         double dforcedx = -k;
         double dforcedv = -d;
-        v2 = ((m - dt * dforcedv) * v2 + dt * (springForce2 + m * g)) / (m - dt * dforcedv - dt * dt * dforcedx );
+        v2 = ((m - dt * dforcedv) * v2 + dt * (springForce2 + dampingForce2 + m * g)) / (m - dt * dforcedv - dt * dt * dforcedx );
         p2 = p2 + dt * v2;
     }
     
