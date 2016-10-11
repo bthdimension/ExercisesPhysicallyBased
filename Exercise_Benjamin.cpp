@@ -84,10 +84,46 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
 	}
 }
 
+Vec2 totalForce2D(double k, double m, double d, double L,
+	Vec2& p, Vec2& v, Vec2& pi, Vec2& pj)
+{
+	int floorPos = -1;
+	double kr = 100;
+	double lengthi = (p - pi).norm();
+	double lengthj = (p - pj).norm();
+
+	Vec2 internalForcei = -k*(lengthi - L) * (p - pi)/lengthi;
+	Vec2 internalForcej = -k*(lengthj - L) * (p - pj) / lengthj;
+
+	Vec2 externalForce = Vec2(0, -m * g);
+	Vec2 dampingForce = -d*v;
+
+	Vec2 totalForce = internalForcei + internalForcej + externalForce + dampingForce;
+
+	if (p.y() < floorPos)
+	{
+		totalForce += Vec2(0, -kr*(p.y()-floorPos));
+	}
+	return totalForce;
+}
+
+Vec2 derivativeOfVelocity(Vec2& totalForce, double m)
+{
+	return totalForce / m;
+}
+
 // Exercise 3
 // Falling triangle
 void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
 	Vec2& p1, Vec2& v1, Vec2& p2, Vec2& v2, Vec2& p3, Vec2& v3)
 {
-	p1 += Vec2(1, 1);
+	Vec2 nv1 = v1 + dt*derivativeOfVelocity(totalForce2D(k, m, d, L, p1, v1, p2, p3), m); // created placeholder nv1 so I don't already use new v1 to calculate v2 but not the other way around
+	Vec2 nv2 = v2 + dt*derivativeOfVelocity(totalForce2D(k, m, d, L, p2, v2, p1, p3), m);
+	v3 = v3 + dt*derivativeOfVelocity(totalForce2D(k, m, d, L, p3, v3, p1, p2), m);
+	v1 = nv1;
+	v2 = nv2;
+
+	p1 = p1 + dt*v1;
+	p2 = p2 + dt*v2;
+	p3 = p3 + dt*v3;
 }
