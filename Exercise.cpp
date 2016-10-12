@@ -84,7 +84,8 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
 // functions for function AdvanceTimeStep3
 Vec2 springForce2Di(double k, double L, Vec2 pj, Vec2 pi)
 {
-    return - k * ( (pj - pi).norm() - L ) / (pj - pi).norm() * (pj - pi);
+    Vec2 deltap = pj-pi;
+    return - k * ( deltap.length() - L ) / deltap.length() * deltap;
 }
 
 Vec2 dampingForce2Di(double d, Vec2 v)
@@ -118,7 +119,7 @@ void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
     if(p1.y() <= -1.0)
     {
         // force induced by ground
-        Vec2 forceGround1 = springForce2Di(kr, 0.0, p1, Vec2(p1.x(),-1.0));
+        Vec2 forceGround1 = springForce2Di(kr, 0.0, p1, Vec2(p1.x(),-1.0) );
         force1 += forceGround1;
     }
     
@@ -130,11 +131,11 @@ void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
     
     if(p2.y() <= -1.0)
     {
-        Vec2 forceGround2 = springForce2Di(kr, 0.0, p2, Vec2(p2.x(),-1.0));
+        Vec2 forceGround2 = springForce2Di(kr, 0.0, p2, Vec2(p2.x(),-1.0) );
         force2 += forceGround2;
     }
     
-    v2 = v2 + dt * force2 / m; // force / m;
+    v2 = v2 + dt * force2 / m;
     p2 = p2 + dt * v2;
     
     
@@ -142,14 +143,12 @@ void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
     
     if(p3.y() <= -1.0)
     {
-        Vec2 forceGround3 = springForce2Di(kr, 0.0, p3, Vec2(p3.x(),-1.0));
+        Vec2 forceGround3 = springForce2Di(kr, 0.0, p3, Vec2(p3.x(),-1.0) );
         force3 += forceGround3;
     }
     
     v3 = v3 + dt * force3 / m;
     p3 = p3 + dt * v3;
-    
-    
     
     
 }
