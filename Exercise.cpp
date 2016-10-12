@@ -12,7 +12,7 @@ static const double g = 9.81;
 // functions for function AdvanceTimeStep1
 double springForce1Di(double k, double L, double pj, double pi)
 {
-    return -k * ((pj-pi) - (-L) ); // * (pj-pi) / fabs(pj-pi);
+    return k * ((pj-pi) - L); // * (pj-pi) / fabs(pj-pi);
 }
 
 double dampingForce1Di(double d, double v)
@@ -28,20 +28,20 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
 	//         solution is requested, in which case it is the absolute time.
     
     
-    double springForce2 = springForce1Di(k,L,p2,p1);
+    double springForce2 = springForce1Di(k,L,p1,p2);
     double dampingForce2 = dampingForce1Di(d, v2);
     
     // explicit Euler
     if(method == 1)
     {
         p2 = p2 + dt * v2;
-        v2 = v2 + dt * (springForce2 + dampingForce2 + m * g ) / m;
+        v2 = v2 + dt * (springForce2 + dampingForce2 - m * g ) / m;
     }
     
     // Symplectic Euler
     if(method == 2)
     {
-        v2 = v2 + dt * (springForce2 + dampingForce2 + m * g ) / m;
+        v2 = v2 + dt * (springForce2 + dampingForce2 - m * g ) / m;
         p2 = p2 + dt * v2;
     }
     
@@ -49,13 +49,13 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
     if(method == 3)
     {
         double p2Half = p2 + dt / 2.0 * v2;
-        double v2Half = v2 + dt / 2.0 * (springForce2 + dampingForce2 + m * g) / m;
+        double v2Half = v2 + dt / 2.0 * (springForce2 + dampingForce2 - m * g) / m;
         
-        double springForceHalf = springForce1Di(k, L, p2Half, p1);
+        double springForceHalf = springForce1Di(k, L, p1, p2Half);
         double dampingForceHalf = dampingForce1Di(d, v2Half);
         
         p2 = p2 + dt * v2Half;
-        v2 = v2 + dt * (springForceHalf + dampingForceHalf + m * g) / m;
+        v2 = v2 + dt * (springForceHalf + dampingForceHalf - m * g) / m;
     }
     
     // Semi-Implicit Euler
@@ -63,7 +63,7 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
     {
         double dforcedx = -k;
         double dforcedv = -d;
-        v2 = ((m - dt * dforcedv) * v2 + dt * (springForce2 + dampingForce2 + m * g)) / (m - dt * dforcedv - dt * dt * dforcedx );
+        v2 = ((m - dt * dforcedv) * v2 + dt * (springForce2 + dampingForce2 - m * g)) / (m - dt * dforcedv - dt * dt * dforcedx );
         p2 = p2 + dt * v2;
     }
     
@@ -118,7 +118,7 @@ void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
     if(p1.y() <= -1.0)
     {
         // force induced by ground
-        Vec2 forceGround1 = -springForce2Di(kr, L, p1, Vec2(p1.x(),-1.0));
+        Vec2 forceGround1 = springForce2Di(kr, 0.0, p1, Vec2(p1.x(),-1.0));
         force1 += forceGround1;
     }
     
@@ -130,7 +130,7 @@ void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
     
     if(p2.y() <= -1.0)
     {
-        Vec2 forceGround2 = -springForce2Di(kr, L, p2, Vec2(p2.x(),-1.0));
+        Vec2 forceGround2 = springForce2Di(kr, 0.0, p2, Vec2(p2.x(),-1.0));
         force2 += forceGround2;
     }
     
@@ -142,7 +142,7 @@ void AdvanceTimeStep3(double k, double m, double d, double L, double dt,
     
     if(p3.y() <= -1.0)
     {
-        Vec2 forceGround3 = -springForce2Di(kr, L, p3, Vec2(p3.x(),-1.0));
+        Vec2 forceGround3 = springForce2Di(kr, 0.0, p3, Vec2(p3.x(),-1.0));
         force3 += forceGround3;
     }
     
