@@ -10,8 +10,8 @@ static const double g = 9.81;
 
 double totalForce1D(double k, double m, double d, double L, double p1, double p2, double v2)
 {
-	double currentLength = abs(p1 - p2);
-	double internalForce = -k*(currentLength - L) * ((p2 - p1) / currentLength);	// "*((p2 - p1) / currentLength)" to negate damping when p2 switches side
+	double currentLength = (p1 - p2);
+	double internalForce = k*(currentLength - L) ;	
 	double externalForce = -m * g;													// pulls p2 down, needs to be negative
 	double dampingForce = -d*v2;
 	return (externalForce + internalForce + dampingForce);
