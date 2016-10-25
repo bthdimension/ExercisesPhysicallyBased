@@ -67,6 +67,10 @@ void FEMElementTri::computeSingleBasisDerivGlobalGeom(int nodeId, Vector2 &basis
 // TASK 1
 void FEMElementTri::computeSingleBasisDerivGlobalLES(int nodeId, Vector2 &basisDerivGlobal, const FEMMesh *pMesh) const
 {
+	int id1 = nodeId;
+	int id2 = (nodeId + 1) % 3;
+	int id3 = (nodeId + 2) % 3;
+
 	Vector2 ni = pMesh->GetNodePosition(m_nodes[nodeId]);
 	Vector2 n2 = pMesh->GetNodePosition(m_nodes[(nodeId + 1) % 3]);
 	Vector2 n3 = pMesh->GetNodePosition(m_nodes[(nodeId + 2) % 3]);
@@ -74,7 +78,7 @@ void FEMElementTri::computeSingleBasisDerivGlobalLES(int nodeId, Vector2 &basisD
 	Matrix3x3 K;
 	K(0, 0) = ni.x(); K(0, 1) = ni.y(); K(0, 2) = 1;
 	K(1, 0) = n2.x(); K(1, 1) = n2.y(); K(1, 2) = 1;
-	K(2, 0) = n2.x(); K(2, 1) = n3.y(); K(2, 2) = 1;
+	K(2, 0) = n3.x(); K(2, 1) = n3.y(); K(2, 2) = 1;
 
 	Vector3 delta = Vector3(1, 0, 0);
 	Vector3 abc = K.inverse() * delta;

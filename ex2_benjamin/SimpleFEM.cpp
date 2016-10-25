@@ -12,7 +12,7 @@
 // size of grid
 static const int gridSize = 20;
 // use a graded mesh, or a regular mesh
-static const bool gradedMesh = false;
+static const bool gradedMesh = true;
 // laplace or poisson problem?
 static const bool laplaceProblem = false;
 // display debug information?
@@ -135,7 +135,7 @@ double computeBasisFunction(int nodeId, const FEMMesh *mesh, const FEMElementTri
 	Matrix3x3 K;
 	K(0, 0) = ni.x(); K(0, 1) = ni.y(); K(0, 2) = 1;
 	K(1, 0) = n2.x(); K(1, 1) = n2.y(); K(1, 2) = 1;
-	K(2, 0) = n2.x(); K(2, 1) = n3.y(); K(2, 2) = 1;
+	K(2, 0) = n3.x(); K(2, 1) = n3.y(); K(2, 2) = 1;
 
 	Vector3 delta = Vector3(1, 0, 0);
 	Vector3 abc = K.inverse() * delta;
