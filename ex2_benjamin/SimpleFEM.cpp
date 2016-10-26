@@ -10,9 +10,9 @@
 #include "MeshViewer.h"
 
 // size of grid
-static const int gridSize = 16;
+static const int gridSize = 8;
 // use a graded mesh, or a regular mesh
-static const bool gradedMesh = true;
+static const bool gradedMesh = false;
 // laplace or poisson problem?
 static const bool laplaceProblem = false;
 // display debug information?
@@ -120,29 +120,6 @@ bool SimpleFEM::isOnBoundary(const Vector2 &pos)
 	return pos[0] <= 0. || pos[0] >= 1. || pos[1] <= 0. || pos[1] >= 1.;
 }
 
-double getArea(double a, double b, double c)
-{
-	double s = (a + b + c) / 2;
-	return sqrt(s*(s - a)*(s - b)*(s - c));
-}
-
-double computeBasisFunction(int nodeId, const FEMMesh *mesh, const FEMElementTri *elem, double x, double y)
-{
-	Vector2 ni = mesh->GetNodePosition(elem->GetGlobalNodeForElementNode(nodeId));
-	Vector2 n2 = mesh->GetNodePosition(elem->GetGlobalNodeForElementNode((nodeId + 1) % 3));
-	Vector2 n3 = mesh->GetNodePosition(elem->GetGlobalNodeForElementNode((nodeId + 2) % 3));
-
-	Matrix3x3 K;
-	K(0, 0) = ni.x(); K(0, 1) = ni.y(); K(0, 2) = 1;
-	K(1, 0) = n2.x(); K(1, 1) = n2.y(); K(1, 2) = 1;
-	K(2, 0) = n3.x(); K(2, 1) = n3.y(); K(2, 2) = 1;
-
-	Vector3 delta = Vector3(1, 0, 0);
-	Vector3 abc = K.inverse() * delta;
-	
-	return abc.x()*x + abc.y()*y + abc.z();
-}
-
 // TASK 4
 void SimpleFEM::ComputeRHS(const FEMMesh &mesh, std::vector<double> &rhs)
 {
@@ -159,16 +136,14 @@ void SimpleFEM::ComputeRHS(const FEMMesh &mesh, std::vector<double> &rhs)
 		Vector2 centroid = (n1 + n2 + n3) / 3;
 		double f_center = eval_f(centroid.x(), centroid.y());
 
-		// get area of elemnt
-		double a = abs((n1 - n2).length());
-		double b = abs((n2 - n3).length());
-		double c = abs((n3 - n1).length());
-		double A = getArea(a, b, c);
+		// get area of element
+		double A;
+		elem.computeElementArea(&mesh, A);
 
 		// get N
-		double N1 = computeBasisFunction(0, &mesh, &elem, centroid.x(), centroid.y());
-		double N2 = computeBasisFunction(1, &mesh, &elem, centroid.x(), centroid.y());
-		double N3 = computeBasisFunction(2, &mesh, &elem, centroid.x(), centroid.y());
+		double N1 = elem.evalSingleBasisGlobalLES(0, &mesh, centroid.x(), centroid.y());
+		double N2 = elem.evalSingleBasisGlobalLES(1, &mesh, centroid.x(), centroid.y());
+		double N3 = elem.evalSingleBasisGlobalLES(2, &mesh, centroid.x(), centroid.y());
 
 		// Add contribution of element to fi
 		rhs[elem.GetGlobalNodeForElementNode(0)] += f_center * N1 * A; // fi += fe(xq,yq)*Ni(xq,yq)*Ae
