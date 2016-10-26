@@ -10,7 +10,7 @@
 #include "MeshViewer.h"
 
 // size of grid
-static const int gridSize = 20;
+static const int gridSize = 16;
 // use a graded mesh, or a regular mesh
 static const bool gradedMesh = true;
 // laplace or poisson problem?
@@ -184,6 +184,23 @@ void SimpleFEM::computeError(FEMMesh &mesh, const std::vector<double> &sol_num, 
 {
 	//Task 5 starts here
 	
+	for (int i = 0; i < verror.size(); i++)
+	{
+		Vector2 node = mesh.GetNodePosition(i);
+		verror[i] = abs(sol_num[i] - eval_u(node.x(), node.y()));
+	}
+
+	std::vector<double> Kverr = verror;
+	double verrKverr = 0.0;
+
+	mesh.getMat().MultVector(verror, Kverr);
+	for (int i = 0; i < verror.size(); i++)
+	{
+		verrKverr += verror[i] * Kverr[i];
+	}
+
+	err_nrm = sqrt(verrKverr);
+
 	//Task 5 ends here
 }
 
