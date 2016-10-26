@@ -10,7 +10,7 @@
 #include "MeshViewer.h"
 
 // size of grid
-static const int gridSize = 20;
+static const int gridSize = 16;
 // use a graded mesh, or a regular mesh
 static const bool gradedMesh = false;
 // laplace or poisson problem?
@@ -150,6 +150,8 @@ void SimpleFEM::ComputeRHS(const FEMMesh &mesh, std::vector<double> &rhs)
         double N0 = elem.evalSingleBasisGlobalLES(globnodeId0, &mesh, point_q.x(), point_q.y());
         double N1 = elem.evalSingleBasisGlobalLES(globnodeId1, &mesh, point_q.x(), point_q.y());
         double N2 = elem.evalSingleBasisGlobalLES(globnodeId2, &mesh, point_q.x(), point_q.y());
+        
+//        std::cout << N0 << " " << N1 << " " << N2  << std::endl;
         
         rhs[globnodeId0] += area * (fvalue * N0);
         rhs[globnodeId1] += area * (fvalue * N1);

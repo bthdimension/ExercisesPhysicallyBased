@@ -17,7 +17,7 @@ double FEMElementTri::evalSingleBasisGlobalLES(int nodeId, const FEMMesh *pMesh,
     Vector2 node_p2 = pMesh->GetNodePosition( m_nodes[2] );
     
     /* Barycenter (centroid) of each element*/
-    Vector2 point_q(x,y);//= (node_p0 + node_p1 + node_p2) / 3.0;
+    Vector2 point_q(x,y);
     
     double N;
     if (m_nodes[0] == nodeId)
