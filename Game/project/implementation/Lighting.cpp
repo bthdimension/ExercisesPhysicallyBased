@@ -12,7 +12,7 @@ void Lighting::setup() {
 
 	_objectManager->createLight(
 		"sun", // name
-		vmml::Vector3f(-50.0f, 200.0f, -100.0f), // position
+		vmml::Vector3f(50.0f, 200.0f, 100.0f), // position
 		vmml::Vector3f(1.0f, 1.0f, 1.0f), // diffuse color
 		vmml::Vector3f(1.0f, 1.0f, 1.0f), // specular color
 		400.0f, // intensity
@@ -22,10 +22,10 @@ void Lighting::setup() {
 
 	_objectManager->createLight(
 		"moon", // name
-		vmml::Vector3f(50.0f, 100.0f, 100.0f), // position
-		vmml::Vector3f(0.4f, 0.4f, 0.4f), // diffuse color
+		vmml::Vector3f(-120.0f, 50.0f, -120.0f), // position
+		vmml::Vector3f(0.7f, 0.7f, 0.7f), // diffuse color
 		vmml::Vector3f(0.4f, 0.4f, 0.4f), // specular color
-		200.0f, // intensity
+		400.0f, // intensity
 		0.01f, // attenuation
 		1000.0f // radius
 	);

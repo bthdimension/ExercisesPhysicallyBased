@@ -39,7 +39,7 @@ void Sphere::update(const double &deltaTime) {
 	_position += _velocity * deltaTime;
 
 	// only do this if there was a change in position/orientation
-	registerInOctTree();
+	//registerInOctTree();
 }
 
 

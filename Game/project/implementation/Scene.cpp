@@ -40,7 +40,7 @@ void Scene::generateSpheres() {
 		vmml::Vector3d position = vmml::Vector3d(15.0 + ((rand() % 100) * 0.1), 0.5, -25.0 + ((rand() % 500) * 0.1));
 		Sphere* sphere = new Sphere(position, 0.5);
 
-		vmml::Vector3d velocity = vmml::Vector3d(-3.0 + ((rand() % 300) * 0.01), 0.0, -1.0 + ((rand() % 200) * 0.01));
+		vmml::Vector3d velocity = vmml::Vector3d(-6.0 + ((rand() % 300) * 0.01), 0.0, -1.0 + ((rand() % 200) * 0.01));
 		sphere->setVelocity(velocity);
 
 		addRigidBody((ARigidBody*)sphere);
@@ -48,9 +48,11 @@ void Scene::generateSpheres() {
 }
 
 
-void Scene::loop(const double &deltaTime) {
+void Scene::loop(const double &deltaTime, bool* running) {
 	_sceneEditor->update();
-	update(deltaTime);
+	if (*running) {
+		update(deltaTime);
+	}
 	draw();
 }
 

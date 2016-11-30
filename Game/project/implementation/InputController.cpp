@@ -51,7 +51,7 @@ void InputController::pauseUnpause() {
 	GLint currentStatePauseKey = isPressed(bRenderer::KEY_P);
 	if (currentStatePauseKey != _lastStatePauseKey) {
 		_lastStatePauseKey = currentStatePauseKey;
-		if (currentStatePauseKey == false) {
+		if (!currentStatePauseKey) {
 			*_running = !*_running;
 		}
 	}

@@ -23,7 +23,7 @@ public:
 
 	void addRigidBody(ARigidBody* solidBody);
 
-	void loop(const double &deltaTime);
+	void loop(const double &deltaTime, bool* running);
 
 
 private:
