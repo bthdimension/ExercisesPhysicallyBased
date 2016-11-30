@@ -40,57 +40,43 @@ void OBJLoader::genVertex(const IndexData &d)
 
 	if (POSITION)
 	{
-		v.position.x = _vertices[d.vertexIndex].x();
-		v.position.y = _vertices[d.vertexIndex].y();
-		v.position.z = _vertices[d.vertexIndex].z();
+		v.position = _vertices[d.vertexIndex].position;
 		if (_data->getFlipZ())
 		{
-			v.position.z *= -1.0f;
+			v.position[2] *= -1.0f;
 		}
 	}
 	else
 	{
-		v.position.x = 0;
-		v.position.y = 0;
-		v.position.z = 0;
+		v.position = vmml::Vector3f::ZERO;
 	}
 
 	if (TEX_COORD)
 	{
-		v.texCoord.s = _texCoords[d.texCoordsIndex].x();
-		v.texCoord.t = _texCoords[d.texCoordsIndex].y();
+		v.texCoord = _texCoords[d.texCoordsIndex];
 		if (_data->getFlipT())
 		{
-			v.texCoord.t = 1.0f - v.texCoord.t;
+			v.texCoord[1] = 1.0f - v.texCoord[1];
 		}
 	}
 	else
 	{
-		v.texCoord.s = 0;
-		v.texCoord.t = 0;
+		v.texCoord = vmml::Vector2f::ZERO;
 	}
 
 	if (NORMAL)
 	{
-		v.normal.x = _normals[d.normalIndex].x();
-		v.normal.y = _normals[d.normalIndex].y();
-		v.normal.z = _normals[d.normalIndex].z();
+		v.normal = _normals[d.normalIndex];
 		_vertices[d.vertexIndex].normal = _normals[d.normalIndex];
 	}
 	else
 	{
-		v.normal.x = 0;
-		v.normal.y = 0;
-		v.normal.z = 0;
+		v.normal = vmml::Vector3f::ZERO;
 		_vertices[d.vertexIndex].normal = vmml::Vector3f::ZERO;
 	}
 
-	v.tangent.x = 0.0;
-	v.tangent.y = 0.0;
-	v.tangent.z = 0.0;
-	v.bitangent.x = 0.0;
-	v.bitangent.y = 0.0;
-	v.bitangent.z = 0.0;
+	v.tangent = vmml::Vector3f::ZERO;
+	v.bitangent = vmml::Vector3f::ZERO;
 
 	_group->vboVertices.push_back(v);
 	_group->vboIndices.push_back(_group->vboIndices.size());
@@ -331,22 +317,16 @@ bool OBJLoader::load(std::istream& istream)
 				auto idx = i->second->indices[*j].vertexIndex;
 
 				vmml::Vector3f cNormal = _vertices[idx].normal;
-				Vector3 &normal = i->second->vboVertices[*j].normal;
-				normal.x = cNormal.x();
-				normal.y = cNormal.y();
-				normal.z = cNormal.z();
+				vmml::Vector3f &normal = i->second->vboVertices[*j].normal;
+				normal = cNormal;
 
 				vmml::Vector3f cTangent = _vertices[idx].tangent;
-				Vector3 &tangent = i->second->vboVertices[*j].tangent;
-				tangent.x = cTangent.x();
-				tangent.y = cTangent.y();
-				tangent.z = cTangent.z();
+				vmml::Vector3f &tangent = i->second->vboVertices[*j].tangent;
+				tangent = cTangent;
 
 				vmml::Vector3f cBitangent = _vertices[idx].bitangent;
-				Vector3 &bitangent = i->second->vboVertices[*j].bitangent;
-				bitangent.x = cBitangent.x();
-				bitangent.y = cBitangent.y();
-				bitangent.z = cBitangent.z();
+				vmml::Vector3f &bitangent = i->second->vboVertices[*j].bitangent;
+				bitangent = cBitangent;
 			}
 		}
 	}

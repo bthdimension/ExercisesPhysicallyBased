@@ -2,21 +2,21 @@
 #define OCT_TREE_NODE_H
 
 #include "bRenderer.h"
-#include "CollisionHandler.h"
-#include "ARigidBody.h"
+#include "ARigidBodyOctree.h"
+#include "vmmlib/aabb.hpp"
 
-class ARigidBody; // forward declaration
+class ARigidBodyOctree; // forward declaration
 
 
 class OctTreeNode {
 
 public:
 
-	OctTreeNode(OctTreeNode* parent, int depth, double x0, double x1, double y0, double y1, double z0, double z1);
+	OctTreeNode(OctTreeNode* parent, int depth, vmml::AABBf aabb);
 	~OctTreeNode();
 
-	std::vector<OctTreeNode*> registerRigidBody(ARigidBody* ridigBody);
-	void unregisterRigidBody(ARigidBody* ridigBody);
+	std::vector<OctTreeNode*> registerRigidBody(ARigidBodyOctree* ridigBody);
+	void unregisterRigidBody(ARigidBodyOctree* ridigBody);
 
 	void collide();
 
@@ -27,15 +27,10 @@ private:
 
 	int _depth;
 
-	double _x0;
-	double _x1;
-	double _y0;
-	double _y1;
-	double _z0;
-	double _z1;
+	vmml::AABBf _aabb;
 
 	OctTreeNode* _childNodes;
-	std::vector<ARigidBody*> _rigidBodies;
+	std::vector<ARigidBodyOctree*> _rigidBodies;
 
 	int _numOfElementsInLeaves;
 

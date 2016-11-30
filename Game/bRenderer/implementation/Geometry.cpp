@@ -129,27 +129,27 @@ void Geometry::initializeVertexBuffer()
 
 vmml::AABBf Geometry::createBoundingBoxObjectSpace(const GeometryData::VboVertices &arg)
 {
-	Point3 min = arg[0].position;
-	Point3 max = arg[0].position;
+	vmml::Vector3f min = arg[0].position;
+	vmml::Vector3f max = arg[0].position;
 
 	for (auto i = arg.begin(); i != arg.end(); ++i)
 	{
-		if (i->position.x < min.x)
-			min.x = i->position.x;
-		else if (i->position.x > max.x)
-			max.x = i->position.x;
+		if (i->position[0] < min[0])
+			min[0] = i->position[0];
+		else if (i->position[0] > max[0])
+			max[0] = i->position[0];
 
-		if (i->position.y < min.y)
-			min.y = i->position.y;
-		else if (i->position.y > max.y)
-			max.y = i->position.y;
+		if (i->position[1] < min[1])
+			min[1] = i->position[1];
+		else if (i->position[1] > max[1])
+			max[1] = i->position[1];
 
-		if (i->position.z < min.z)
-			min.z = i->position.z;
-		else if (i->position.z > max.z)
-			max.z = i->position.z;
+		if (i->position[2] < min[2])
+			min[2] = i->position[2];
+		else if (i->position[2] > max[2])
+			max[2] = i->position[2];
 	}
 
-	return vmml::AABBf(vmml::Vector3f(min.x, min.y, min.z), vmml::Vector3f(max.x, max.y, max.z));
+	return vmml::AABBf(min, max);
 }
 

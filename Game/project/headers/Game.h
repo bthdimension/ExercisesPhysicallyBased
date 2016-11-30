@@ -22,6 +22,7 @@ public:
 
 	void terminateFunction();
  
+	void showFPS(const double &deltaTime);
     
 private:
 
@@ -36,7 +37,8 @@ private:
 private:
 
 	bool _running = false; 
-
+	int framesPerSec=0;
+	double fpsTime=0;
 };
 
 #endif

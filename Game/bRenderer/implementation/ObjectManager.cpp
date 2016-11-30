@@ -583,6 +583,14 @@ bool ObjectManager::addDrawable(const std::string &name, DrawablePtr ptr)
 	return true;
 }
 
+bool ObjectManager::addRigidBody(const std::string &name, IRigidBodyPtr ptr)
+
+{
+	if (getRigidBody(name)) return false;
+	_rigidBodies.insert(RigidBodyMap::value_type(name, ptr));
+	return true;
+}
+
 ShaderPtr ObjectManager::getShader(const std::string &name)
 {
 	if (_shaders.count(name) > 0)
@@ -678,6 +686,13 @@ DrawablePtr ObjectManager::getDrawable(const std::string &name)
 {
 	if (_drawables.count(name) > 0)
 		return _drawables[name];
+	return nullptr;
+}
+
+IRigidBodyPtr ObjectManager::getRigidBody(const std::string &name)
+{
+	if (_rigidBodies.count(name) > 0)
+		return _rigidBodies[name];
 	return nullptr;
 }
 
@@ -790,6 +805,11 @@ void ObjectManager::removeDrawable(const std::string &name)
 	_drawables.erase(name);
 }
 
+void ObjectManager::removeRigidBody(const std::string &name)
+{
+	_rigidBodies.erase(name);
+}
+
 void ObjectManager::clear(bool del)
 {
 	if(del) for (auto i = _shaders.begin(); i != _shaders.end(); ++i)
@@ -830,7 +850,7 @@ void ObjectManager::clear(bool del)
 	{
 		i->second->deleteModelGeometry();
 	}
-	_models.clear();
+	_models.clear();	
 
 	if (del) for (auto i = _textSprites.begin(); i != _textSprites.end(); ++i)
 	{
@@ -849,6 +869,8 @@ void ObjectManager::clear(bool del)
 	_framebuffers.clear();
 	
 	_drawables.clear();
+
+	_rigidBodies.clear();
 
 	_ambientColor = bRenderer::DEFAULT_AMBIENT_COLOR();
 

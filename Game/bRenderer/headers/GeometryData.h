@@ -26,95 +26,95 @@ struct IndexData
 	{}
 };
 
-struct TexCoord
-{
-    GLfloat s;
-    GLfloat t;
-};
-
-struct Color
-{
-    GLubyte r;
-    GLubyte g;
-    GLubyte b;
-    GLubyte a;
-};
-
-struct Point3
-{
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-};
-
-struct Vector3
-{
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-};
+//struct TexCoord
+//{
+//    GLfloat s;
+//    GLfloat t;
+//};
+//
+//struct Color
+//{
+//    GLubyte r;
+//    GLubyte g;
+//    GLubyte b;
+//    GLubyte a;
+//};
+//
+//struct Point3
+//{
+//    GLfloat x;
+//    GLfloat y;
+//    GLfloat z;
+//};
+//
+//struct Vector3
+//{
+//    GLfloat x;
+//    GLfloat y;
+//    GLfloat z;
+//};
 
 struct Vertex
 {
 	Vertex()
 	{
-		position.x = 0.0f;
-		position.y = 0.0f;
-		position.z = 0.0f;
-		normal.x = 0.0f;
-		normal.y = 0.0f;
-		normal.z = 0.0f;
-		tangent.x = 0.0f;
-		tangent.y = 0.0f;
-		tangent.z = 0.0f;
-		bitangent.x = 0.0f;
-		bitangent.y = 0.0f;
-		bitangent.z = 0.0f;
-		texCoord.s = 0.0f;
-		texCoord.t = 0.0f;
+		position[0] = 0.0f;
+		position[1] = 0.0f;
+		position[2] = 0.0f;
+		normal[0] = 0.0f;
+		normal[1] = 0.0f;
+		normal[2] = 0.0f;
+		tangent[0] = 0.0f;
+		tangent[1] = 0.0f;
+		tangent[2] = 0.0f;
+		bitangent[0] = 0.0f;
+		bitangent[1] = 0.0f;
+		bitangent[2] = 0.0f;
+		texCoord[0] = 0.0f;
+		texCoord[1] = 0.0f;
 	}
 
 	Vertex(GLfloat pX, GLfloat pY, GLfloat pZ, GLfloat tS, GLfloat tT)
 	{
-		position.x = pX;
-		position.y = pY;
-		position.z = pZ;
-		normal.x = 0.0f;
-		normal.y = 0.0f;
-		normal.z = 0.0f;
-		tangent.x = 0.0f;
-		tangent.y = 0.0f;
-		tangent.z = 0.0f;
-		bitangent.x = 0.0f;
-		bitangent.y = 0.0f;
-		bitangent.z = 0.0f;
-		texCoord.s = tS;
-		texCoord.t = tT;
+		position[0] = pX;
+		position[1] = pY;
+		position[2] = pZ;
+		normal[0] = 0.0f;
+		normal[1] = 0.0f;
+		normal[2] = 0.0f;
+		tangent[0] = 0.0f;
+		tangent[1] = 0.0f;
+		tangent[2] = 0.0f;
+		bitangent[0] = 0.0f;
+		bitangent[1] = 0.0f;
+		bitangent[2] = 0.0f;
+		texCoord[0] = tS;
+		texCoord[1] = tT;
 	}
 
 	Vertex(GLfloat pX, GLfloat pY, GLfloat pZ, GLfloat nX, GLfloat nY, GLfloat nZ, GLfloat tX, GLfloat tY, GLfloat tZ, GLfloat bX, GLfloat bY, GLfloat bZ, GLfloat tS, GLfloat tT)
 	{
-		position.x = pX;
-		position.y = pY;
-		position.z = pZ;
-		normal.x = nX;
-		normal.y = nY;
-		normal.z = nZ;
-		tangent.x = tX;
-		tangent.y = tY;
-		tangent.z = tZ;
-		bitangent.x = bX;
-		bitangent.y = bY;
-		bitangent.z = bZ;
-		texCoord.s = tS;
-		texCoord.t = tT;
-	}
+		position[0] = pX;
+		position[1] = pY;
+		position[2] = pZ;
+		normal[0] = nX;
+		normal[1] = nY;
+		normal[2] = nZ;
+		tangent[0] = tX;
+		tangent[1] = tY;
+		tangent[2] = tZ;
+		bitangent[0] = bX;
+		bitangent[1] = bY;
+		bitangent[2] = bZ;
+		texCoord[0] = tS;
+		texCoord[1] = tT;
+	}			
 
-	Point3      position;
-	Vector3     normal;
-	Vector3     tangent;
-	Vector3     bitangent;
-	TexCoord    texCoord;
+	vmml::Vector3f	position;
+	vmml::Vector3f	normal;
+	vmml::Vector3f	tangent;
+	vmml::Vector3f	bitangent;
+	vmml::Vector2f	texCoord;
 };
 
 typedef GLushort Index;

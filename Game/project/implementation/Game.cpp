@@ -32,18 +32,30 @@ void Game::initFunction() {
 
 
 void Game::loopFunction(const double &deltaTime, const double &elapsedTime) {
-
+	showFPS(deltaTime);
 	// Process keyboard and mouse
 	_inputController->update(deltaTime);
+	if (bRenderer().isInitialized()) {
+		// Update camera
+		_freeCamera->update(deltaTime);
 
-	// Update camera
-	_freeCamera->update(deltaTime);
-
-	// Update and draw scene
-	_scene->loop(deltaTime);
+		// Update and draw scene
+		_scene->loop(deltaTime);
+	}
 }
 
 
 void Game::terminateFunction() {
 	bRenderer::log("Terminated");
+}
+
+void Game::showFPS(const double &deltaTime) {
+	if (fpsTime >= 1)
+	{
+		bRenderer::log("FPS: " + std::to_string(framesPerSec));
+		framesPerSec = 0;
+		fpsTime--;
+	}
+	framesPerSec++;
+	fpsTime += deltaTime;
 }

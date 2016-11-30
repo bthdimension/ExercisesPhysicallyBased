@@ -33,7 +33,7 @@ void SceneEditor::update() {
 	blockPosition.y() = 1.0;
 
 	if (!leftMouseDown && leftMouseDown != _lastLeftMouseButtonState) {
-		_scene->addRigidBody((ARigidBody*) new Block(blockPosition));
+		_scene->addRigidBody((ARigidBodyOctree*) new Block(_modelRenderer->getObjectManager()->getModel("block"), blockPosition));
 	}
 	if (leftMouseDown) {
 		vmml::Matrix4f modelMatrix = vmml::create_translation(blockPosition);

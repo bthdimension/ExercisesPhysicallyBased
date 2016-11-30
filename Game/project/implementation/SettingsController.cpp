@@ -17,7 +17,7 @@ void SettingsController::setup() {
 	std::string windowTitle = "PBS Game";
 
 	if (windowFullscreen) {
-		_bRenderer->initRenderer(View::getScreenWidth(), View::getScreenHeight(), true, windowTitle);
+		_bRenderer->initRenderer(true, windowTitle);
 	}
 	else {
 		_bRenderer->initRenderer(windowWidth, windowHeight, false, windowTitle);

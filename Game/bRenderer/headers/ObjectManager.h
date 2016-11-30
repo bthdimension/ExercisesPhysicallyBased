@@ -22,6 +22,7 @@
 #include "TextureData.h"
 #include "IShaderData.h"
 #include "ShaderDataGenerator.h"
+#include "IRigidBody.h"
 
 /* vmmlib includes */
 #include "vmmlib/util.hpp"
@@ -47,6 +48,7 @@ public:
 	typedef std::unordered_map< std::string, LightPtr >			LightMap;
 	typedef std::unordered_map< std::string, FramebufferPtr >	FramebufferMap;
 	typedef std::unordered_map< std::string, DrawablePtr >		DrawableMap;
+	typedef std::unordered_map< std::string, IRigidBodyPtr>		RigidBodyMap;
 
 	/* Functions */
 
@@ -231,7 +233,7 @@ public:
 	*	@param[in] properties Properties that will be passed to the shader of the model (optional)
 	*/
 	ModelPtr createModel(const std::string &name, const ModelData &modelData, MaterialPtr material, PropertiesPtr	properties = nullptr);
-
+	
 	/**	@brief Create a sprite
 	*	@param[in] name The raw name of the sprite
 	*	@param[in] material
@@ -489,6 +491,12 @@ public:
 	*/
 	bool addDrawable(const std::string &name, DrawablePtr ptr);
 
+	/**	@brief Add a rigid body (returns true if successful)
+	*	@param[in] name Name of the rigid body
+	*	@param[in] ptr A pointer to the object to be added
+	*/
+	bool addRigidBody(const std::string &name, IRigidBodyPtr ptr);
+
 	/**	@brief Get a shader
 	*	@param[in] name Name of the shader
 	*/
@@ -558,6 +566,11 @@ public:
 	*	@param[in] name Name of the drawable
 	*/
 	DrawablePtr getDrawable(const std::string &name);
+
+	/**	@brief Get a rigid body
+	*	@param[in] name Name of the rigid body
+	*/
+	IRigidBodyPtr getRigidBody(const std::string &name);
 
 	/**	@brief Get the shader version used on desktop systems
 	*/
@@ -649,6 +662,11 @@ public:
 	*/
 	void removeDrawable(const std::string &name);
 
+	/**	@brief Remove a rigid body
+	*	@param[in] name Name of the rigid body
+	*/
+	void removeRigidBody(const std::string &name);
+
 	/**	@brief Clear all objects
 	*	@param[in] del Set true if the OpenGL objects should be deleted
 	*/
@@ -679,6 +697,7 @@ private:
 	LightMap		_lights;
 	FramebufferMap	_framebuffers;
 	DrawableMap		_drawables;
+	RigidBodyMap	_rigidBodies;
 
 	vmml::Vector3f		_ambientColor;
 

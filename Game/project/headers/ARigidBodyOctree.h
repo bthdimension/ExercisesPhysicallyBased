@@ -3,24 +3,24 @@
 
 #include "bRenderer.h"
 #include "OctTreeNode.h"
+#include "headers/IRigidBody.h"
 
 class OctTreeNode; // forward declaration
 typedef std::shared_ptr< OctTreeNode >  OctTreeNodePtr; // forward declaration
 
 
 
-class ARigidBody {
+class ARigidBodyOctree : public IRigidBody{
 
 public:
 
-	static const int TYPE_BLOCK = 0;
-	static const int TYPE_SPHERE = 1;
+	ARigidBodyOctree(ModelPtr model) : IRigidBody(model) {}
+	ARigidBodyOctree(ModelPtr model, vmml::Vector3f position) : IRigidBody(model) { setPosition(position); }
 
-	virtual int getType() = 0;
+	virtual bool isInAABB(vmml::AABBf aabb) {
+		return getMeshCollider()->intersectBoundingVolumes(aabb, false);
+	}
 
-	virtual bool isInAABB(double x0, double x1, double y0, double y1, double z0, double z1) = 0;
-
-	virtual void update(const double &deltaTime) = 0;
 	virtual void draw(ModelRendererPtr modelRenderer, int id) = 0;
 
 	void setOctTree(OctTreeNodePtr octTree);

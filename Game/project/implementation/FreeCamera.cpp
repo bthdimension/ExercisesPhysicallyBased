@@ -8,8 +8,7 @@ FreeCamera::FreeCamera(ViewPtr view, ObjectManagerPtr objectManager, InputContro
 	vmml::Vector3f cameraPosition = vmml::Vector3f(25.0f, -15.0f, 25.0f);
 	vmml::Vector3f cameraRotation = vmml::Vector3f(-0.5f, -0.7854f, 0.0f);
 
-	objectManager->createCamera("camera", cameraPosition, cameraRotation);
-	_camera = objectManager->getCamera("camera");
+	_camera = objectManager->createCamera("camera", cameraPosition, cameraRotation);
 	_inputController = inputController;
 }
 

@@ -21,7 +21,7 @@ public:
 	Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCameraPtr freeCamera);
 	~Scene();
 
-	void addRigidBody(ARigidBody* solidBody);
+	void addRigidBody(ARigidBodyOctree* solidBody);
 
 	void loop(const double &deltaTime);
 
@@ -45,7 +45,7 @@ private:
 	
 	LightingPtr _lighting;
 
-	std::vector<ARigidBody*> _rigidBodies;
+	std::vector<ARigidBodyOctree*> _rigidBodies;
 	OctTreeNodePtr _octTree;
 
 };

@@ -90,6 +90,7 @@
     <ClCompile Include="..\..\bRenderer\implementation\Logger.cpp" />
     <ClCompile Include="..\..\bRenderer\implementation\Material.cpp" />
     <ClCompile Include="..\..\bRenderer\implementation\MatrixStack.cpp" />
+    <ClCompile Include="..\..\bRenderer\implementation\MeshCollider.cpp" />
     <ClCompile Include="..\..\bRenderer\implementation\Model.cpp" />
     <ClCompile Include="..\..\bRenderer\implementation\ModelData.cpp" />
     <ClCompile Include="..\..\bRenderer\implementation\ModelRenderer.cpp" />
@@ -150,9 +151,8 @@
     <ClCompile Include="..\..\externalLibraries\freetype-2.6\src\type42\type42.c" />
     <ClCompile Include="..\..\externalLibraries\freetype-2.6\src\winfonts\winfnt.c" />
     <ClCompile Include="..\..\project\windows\main.cpp" />
-    <ClCompile Include="..\implementation\ARigidBody.cpp" />
+    <ClCompile Include="..\implementation\ARigidBodyOctree.cpp" />
     <ClCompile Include="..\implementation\Block.cpp" />
-    <ClCompile Include="..\implementation\CollisionHandler.cpp" />
     <ClCompile Include="..\implementation\FreeCamera.cpp" />
     <ClCompile Include="..\implementation\Game.cpp" />
     <ClCompile Include="..\implementation\InputController.cpp" />
@@ -188,12 +188,15 @@
     <ClInclude Include="..\..\bRenderer\headers\GeometryData.h" />
     <ClInclude Include="..\..\bRenderer\headers\IDrawable.h" />
     <ClInclude Include="..\..\bRenderer\headers\Input.h" />
+    <ClInclude Include="..\..\bRenderer\headers\IRenderProject.h" />
+    <ClInclude Include="..\..\bRenderer\headers\IRigidBody.h" />
     <ClInclude Include="..\..\bRenderer\headers\IShaderData.h" />
     <ClInclude Include="..\..\bRenderer\headers\Light.h" />
     <ClInclude Include="..\..\bRenderer\headers\Logger.h" />
     <ClInclude Include="..\..\bRenderer\headers\Material.h" />
     <ClInclude Include="..\..\bRenderer\headers\MaterialData.h" />
     <ClInclude Include="..\..\bRenderer\headers\MatrixStack.h" />
+    <ClInclude Include="..\..\bRenderer\headers\MeshCollider.h" />
     <ClInclude Include="..\..\bRenderer\headers\Model.h" />
     <ClInclude Include="..\..\bRenderer\headers\ModelData.h" />
     <ClInclude Include="..\..\bRenderer\headers\ModelRenderer.h" />
@@ -203,7 +206,6 @@
     <ClInclude Include="..\..\bRenderer\headers\Properties.h" />
     <ClInclude Include="..\..\bRenderer\headers\Renderer.h" />
     <ClInclude Include="..\..\bRenderer\headers\Renderer_GL.h" />
-    <ClInclude Include="..\..\bRenderer\headers\IRenderProject.h" />
     <ClInclude Include="..\..\bRenderer\headers\RenderQueue.h" />
     <ClInclude Include="..\..\bRenderer\headers\Shader.h" />
     <ClInclude Include="..\..\bRenderer\headers\ShaderDataFile.h" />
@@ -217,11 +219,10 @@
     <ClInclude Include="..\..\bRenderer\headers\View.h" />
     <ClInclude Include="..\..\bRenderer\os_specific\ios\BView.h" />
     <ClInclude Include="..\headers\Block.h" />
-    <ClInclude Include="..\headers\CollisionHandler.h" />
     <ClInclude Include="..\headers\FreeCamera.h" />
     <ClInclude Include="..\headers\Game.h" />
     <ClInclude Include="..\headers\InputController.h" />
-    <ClInclude Include="..\headers\ARigidBody.h" />
+    <ClInclude Include="..\headers\ARigidBodyOctree.h" />
     <ClInclude Include="..\headers\Lighting.h" />
     <ClInclude Include="..\headers\OctTreeNode.h" />
     <ClInclude Include="..\headers\ResourceManager.h" />

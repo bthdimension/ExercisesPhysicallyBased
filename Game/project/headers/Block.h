@@ -2,26 +2,22 @@
 #define BLOCK_H
 
 #include "bRenderer.h"
-#include "ARigidBody.h"
+#include "ARigidBodyOctree.h"
 
 
-class Block : public ARigidBody {
+class Block : public ARigidBodyOctree {
 
 public:
 
-	Block(vmml::Vector3f position);
+	Block(ModelPtr model) : ARigidBodyOctree(model) {}
 
-	int getType();
-
-	bool isInAABB(double x0, double x1, double y0, double y1, double z0, double z1);
+	Block(ModelPtr model, vmml::Vector3f position) : ARigidBodyOctree(model, position) {}
 
 	void update(const double &deltaTime);
 	void draw(ModelRendererPtr modelRenderer, int id);
 
 
 private:
-
-	vmml::Vector3f _position;
 
 };
 
