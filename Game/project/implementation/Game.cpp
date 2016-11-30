@@ -27,7 +27,7 @@ void Game::initFunction() {
 
 	// Create and draw scene
 	_scene = ScenePtr(new Scene(&bRenderer(), _inputController, _freeCamera));
-	_scene->loop(0.0);
+	_scene->loop(0.0, &_running);
 }
 
 
@@ -40,7 +40,7 @@ void Game::loopFunction(const double &deltaTime, const double &elapsedTime) {
 		_freeCamera->update(deltaTime);
 
 		// Update and draw scene
-		_scene->loop(deltaTime);
+		_scene->loop(deltaTime, &_running);
 	}
 }
 

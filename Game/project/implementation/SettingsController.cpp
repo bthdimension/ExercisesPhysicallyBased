@@ -11,8 +11,8 @@ void SettingsController::setup() {
 	bRenderer::setStandardFilePath("../data");
 	bRenderer::loadConfigFile("config.json");	// load custom configurations replacing the default values in Configuration.cpp
 
-	int windowWidth = 1600;
-	int windowHeight = 900;
+	int windowWidth = 1200;
+	int windowHeight = 720;
 	bool windowFullscreen = false;
 	std::string windowTitle = "PBS Game";
 
