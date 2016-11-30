@@ -17,7 +17,7 @@ Scene::Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCamera
 
 	_octTree = OctTreeNodePtr(new OctTreeNode(
 		0, // make root
-		5, // depth,
+		4, // depth,
 		{{ -25.f, -10.f, -25.f},{25.f, 40.f, 25.f}}
 	));
 
@@ -34,7 +34,7 @@ Scene::~Scene() {
 
 void Scene::generateSpheres() {
 	srand(time(NULL));
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < 32; i++) { // 32
 		vmml::Vector3d position = vmml::Vector3d(15.0 + ((rand() % 100) * 0.1), 0.5, -25.0 + ((rand() % 500) * 0.1));
 		Sphere* sphere = new Sphere(_modelRenderer->getObjectManager()->getModel("sphere"), position);
 

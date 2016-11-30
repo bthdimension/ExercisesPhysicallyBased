@@ -21,8 +21,8 @@ void Sphere::update(const double &deltaTime) {
 	updateMatrices();
 
 	// only do this if there was a change in position/orientation
-	if(getVelocity() * deltaTime > 0)
-		registerInOctTree();
+	//if(getVelocity() * deltaTime > 0)
+	registerInOctTree();
 }
 
 

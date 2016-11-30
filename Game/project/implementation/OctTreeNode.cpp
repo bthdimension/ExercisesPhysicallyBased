@@ -23,14 +23,14 @@ OctTreeNode::OctTreeNode(OctTreeNode* parent, int depth, vmml::AABBf aabb) {
 		vmml::Vector3f max = _aabb.getMax();
 
 		_childNodes = new OctTreeNode[8]{
-			OctTreeNode(this, (depth - 1), {{min.x(), center.x(), min.y()}, {center.y(), min.z(), center.z()}}),
-			OctTreeNode(this, (depth - 1), {{min.x(), center.x(), min.y()}, {center.y(), center.z(), max.z()} }),
-			OctTreeNode(this, (depth - 1), {{min.x(), center.x(), center.y()}, {max.y(), min.z(), center.z()} }),
-			OctTreeNode(this, (depth - 1), { {min.x(), center.x(), center.y()}, {max.y(), center.z(), max.z() }}),
-			OctTreeNode(this, (depth - 1), {{center.x(), max.x(), min.y()}, {center.y(), min.z(), center.z()}}),
-			OctTreeNode(this, (depth - 1), {{center.x(), max.x(), min.y()}, {center.y(), center.z(), max.z()} }),
-			OctTreeNode(this, (depth - 1), {{center.x(), max.x(), center.y()}, {max.y(), min.z(), center.z()}}),
-			OctTreeNode(this, (depth - 1), {{center.x(), max.x(), center.y()}, {max.y(), center.z(), max.z()} })
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 min.y(),	 min.z() },	   { center.x(), center.y(), center.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 min.y(),	 center.z() }, { center.x(), center.y(), max.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 center.y(), min.z() },	   { center.x(), max.y(),    center.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 center.y(), center.z() }, { center.x(), max.y(),    max.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), min.y(),	 min.z() },	   { max.x(),    center.y(), center.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), min.y(),	 center.z() }, { max.x(),    center.y(), max.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), center.y(), min.z() },	   { max.x(),    max.y(),    center.z()})),
+			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), center.y(), center.z() }, { max.x(),    max.y(),    max.z()}))
 		};																								
 	}
 }
@@ -69,8 +69,9 @@ std::vector<OctTreeNode*> OctTreeNode::registerRigidBody(ARigidBodyOctree* rigid
 			}
 
 			// TODO for debug
-			if(leaves.size()>0)
+			/*if(_depth == 4 && leaves.size() > 0) {
 				std::cout << "depth: " << _depth << " / num of non-empty leaves: " << _numOfElementsInLeaves << "\n";
+				} */
 			return leaves;
 		}
 	}
@@ -112,8 +113,9 @@ void OctTreeNode::collide() {
 		if (_depth <= 1) {
 			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
 				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j != _rigidBodies.size(); j++) {
-					//CollisionHandler::collide(_rigidBodies[i], _rigidBodies[j]);
+					std::cout << "Testing two Objects\n"; // TODO
 					if (_rigidBodies[i]->doesIntersect(_rigidBodies[j])) {
+						std::cout << "COLLISION!!!!!!!\n"; // TODO
 						_rigidBodies[i]->setVelocity(-_rigidBodies[i]->getVelocity());
 						_rigidBodies[j]->setVelocity(-_rigidBodies[j]->getVelocity());
 					}
