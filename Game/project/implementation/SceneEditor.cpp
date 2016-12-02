@@ -8,8 +8,9 @@ SceneEditor::SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputCont
 	_freeCamera = freeCamera;
 
 	placerBlock = new PlacerBlockRigidBody(_modelRenderer->getObjectManager()->getModel("block"));
-	placerBlock->setOctTree(_scene->getOctree());
-	placerBlock->registerInOctTree();
+	_scene->addRigidBody(placerBlock);
+	//placerBlock->setOctTree(_scene->getOctree());
+	//placerBlock->registerInOctTree();
 
 	_lastLeftMouseButtonState = false;
 }
@@ -18,9 +19,9 @@ SceneEditor::SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputCont
 void SceneEditor::update(const double &deltaTime) {
 
 	bool leftMouseDown = _inputController->isLeftMouseButtonDown();
+	placerBlock->setVisible(false);
 
-
-	if (!leftMouseDown && leftMouseDown != _lastLeftMouseButtonState) {		
+	if (!leftMouseDown && leftMouseDown != _lastLeftMouseButtonState) {	
 		_scene->addRigidBody(new BlockRigidBody(_modelRenderer->getObjectManager()->getModel("block"), placerBlock->getPosition()));
 	}
 	//if (leftMouseDown) {
@@ -43,8 +44,7 @@ void SceneEditor::update(const double &deltaTime) {
 		}
 
 		placerBlock->setPosition(blockPosition);
-		placerBlock->update(deltaTime);
-		placerBlock->draw(_modelRenderer, -1);
+		placerBlock->setVisible(true);
 	//}
 	_lastLeftMouseButtonState = leftMouseDown;
 }

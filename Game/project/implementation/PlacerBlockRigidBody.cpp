@@ -5,8 +5,9 @@
 void PlacerBlockRigidBody::update(const double &deltaTime) 
 {
 	vmml::Vector3f pos = getPosition();
-
-	//setPosition(vmml::Vector3f(pos.x(), 0.f, pos.z()));
+	vmml::AABBf aabbThis = getMeshCollider()->getBoundingVolumeWorldSpace();
+	float height = aabbThis.getMax().y() - aabbThis.getMin().y();
+	setPosition(vmml::Vector3f(pos.x(), height, pos.z()));
 
 	BlockRigidBody::update(deltaTime);
 }
@@ -21,4 +22,9 @@ void PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider /*, other 
 	}
 
 	updateMatrices();
+}
+
+void PlacerBlockRigidBody::draw(ModelRendererPtr modelRenderer, int id) {
+	if (_visible)
+		BlockRigidBody::draw(modelRenderer, id);
 }

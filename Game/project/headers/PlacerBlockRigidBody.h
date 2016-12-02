@@ -16,8 +16,14 @@ public:
 
 	void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) override;
 
-private:
+	void draw(ModelRendererPtr modelRenderer, int id) override;
 
+	void setVisible(bool visibility) { _visible = visibility; }
+
+	bool isVisible() { return _visible; }
+
+private:
+	bool _visible = true;
 };
 
 

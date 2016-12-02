@@ -16,7 +16,7 @@ Scene::Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCamera
 	_octTree = OctTreeNodePtr(new OctTreeNode(
 		0, // make root
 		4, // depth,
-		{{ -25.f, -10.f, -25.f},{25.f, 40.f, 25.f}}
+		{{ -25.f, -5.f, -25.f},{25.f, 40.f, 25.f}}
 	));
 
 	_sceneEditor = SceneEditorPtr(new SceneEditor(this, _modelRenderer, inputController, freeCamera));
@@ -48,8 +48,7 @@ void Scene::generateSpheres() {
 }
 
 
-void Scene::loop(const double &deltaTime, bool* running) {
-	_sceneEditor->update(deltaTime);
+void Scene::loop(const double &deltaTime, bool* running) {	
 	if (*running) {
 		update(deltaTime);
 	}
@@ -70,6 +69,7 @@ void Scene::update(const double &deltaTime) {
 		_rigidBodies[i]->update(deltaTime);
 	}
 	_octTree->collide();
+	_sceneEditor->update(deltaTime);
 }
 
 

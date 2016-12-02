@@ -15,7 +15,7 @@ class SceneEditor {
 public:
 
 	SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputControllerPtr inputController, FreeCameraPtr freeCamera);
-	~SceneEditor() { delete placerBlock; }
+	~SceneEditor() { /*don't delete placerBlock, is deleted in octree */ }
 
 	void update(const double &deltaTime);
 
@@ -27,7 +27,6 @@ private:
 	InputControllerPtr _inputController;
 	FreeCameraPtr _freeCamera;
 	PlacerBlockRigidBody *placerBlock;
-
 	bool _lastLeftMouseButtonState;
 };
 
