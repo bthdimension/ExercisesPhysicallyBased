@@ -22,15 +22,19 @@ public:
 	}
 
 	virtual void draw(ModelRendererPtr modelRenderer, int id) = 0;
+	virtual void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) {}
 
 	void setOctTree(OctTreeNodePtr octTree);
 	void registerInOctTree();
+
+	
 
 
 private:
 
 	OctTreeNodePtr _octTree;
 	std::vector<OctTreeNode*> _leavesAtWhichBodyIsRegistered;
+	std::string _modelName;
 
 };
 

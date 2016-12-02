@@ -152,17 +152,18 @@
     <ClCompile Include="..\..\externalLibraries\freetype-2.6\src\winfonts\winfnt.c" />
     <ClCompile Include="..\..\project\windows\main.cpp" />
     <ClCompile Include="..\implementation\ARigidBodyOctree.cpp" />
-    <ClCompile Include="..\implementation\Block.cpp" />
+    <ClCompile Include="..\implementation\BlockRigidBody.cpp" />
     <ClCompile Include="..\implementation\FreeCamera.cpp" />
     <ClCompile Include="..\implementation\Game.cpp" />
     <ClCompile Include="..\implementation\InputController.cpp" />
     <ClCompile Include="..\implementation\Lighting.cpp" />
     <ClCompile Include="..\implementation\OctTreeNode.cpp" />
+    <ClCompile Include="..\implementation\PlacerBlockRigidBody.cpp" />
     <ClCompile Include="..\implementation\ResourceManager.cpp" />
     <ClCompile Include="..\implementation\Scene.cpp" />
     <ClCompile Include="..\implementation\SceneEditor.cpp" />
     <ClCompile Include="..\implementation\SettingsController.cpp" />
-    <ClCompile Include="..\implementation\Sphere.cpp" />
+    <ClCompile Include="..\implementation\SphereRigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\bRenderer\bRenderer.h" />
@@ -218,18 +219,20 @@
     <ClInclude Include="..\..\bRenderer\headers\Touch.h" />
     <ClInclude Include="..\..\bRenderer\headers\View.h" />
     <ClInclude Include="..\..\bRenderer\os_specific\ios\BView.h" />
-    <ClInclude Include="..\headers\Block.h" />
+    <ClInclude Include="..\headers\BlockRigidBody.h" />
+    <ClInclude Include="..\headers\FloorRigidBody.h" />
     <ClInclude Include="..\headers\FreeCamera.h" />
     <ClInclude Include="..\headers\Game.h" />
     <ClInclude Include="..\headers\InputController.h" />
     <ClInclude Include="..\headers\ARigidBodyOctree.h" />
     <ClInclude Include="..\headers\Lighting.h" />
     <ClInclude Include="..\headers\OctTreeNode.h" />
+    <ClInclude Include="..\headers\PlacerBlockRigidBody.h" />
     <ClInclude Include="..\headers\ResourceManager.h" />
     <ClInclude Include="..\headers\Scene.h" />
     <ClInclude Include="..\headers\SceneEditor.h" />
     <ClInclude Include="..\headers\SettingsController.h" />
-    <ClInclude Include="..\headers\Sphere.h" />
+    <ClInclude Include="..\headers\SphereRigidBody.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\bRenderer\os_specific\ios\BView.mm" />

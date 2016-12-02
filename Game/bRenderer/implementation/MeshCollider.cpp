@@ -111,7 +111,7 @@ bool MeshCollider::doesIntersect(MeshTriangle colliderTriangle)
 bool MeshCollider::intersectBoundingVolumes(vmml::AABBf boundingVolumeWorld, bool isSphere)
 {
 	if (_isPerfectSphere && isSphere) {
-		intersectBoundingSpheres(boundingVolumeWorld, getBoundingVolumeWorldSpace());
+		return intersectBoundingSpheres(boundingVolumeWorld, getBoundingVolumeWorldSpace());
 	}
 	else if (_isPerfectSphere) {
 		return intersectBoundingBoxWithSphere(boundingVolumeWorld, getBoundingVolumeWorldSpace());
@@ -200,8 +200,10 @@ vmml::AABBf MeshCollider::getBoundingVolumeWorldSpace()
 
 bool MeshCollider::intersectBoundingBoxes(vmml::AABBf boundingVolume1, vmml::AABBf boundingVolume2)
 {
-	return boundingVolume1.isIn(boundingVolume2.getMin()) || boundingVolume1.isIn(boundingVolume2.getMax())
-		|| boundingVolume2.isIn(boundingVolume1.getMin()) || boundingVolume2.isIn(boundingVolume1.getMax());
+	return
+		(boundingVolume1.getMin().x() <= boundingVolume2.getMax().x() && boundingVolume1.getMax().x() >= boundingVolume2.getMin().x())
+		&& (boundingVolume1.getMin().y() <= boundingVolume2.getMax().y() && boundingVolume1.getMax().y() >= boundingVolume2.getMin().y())
+		&& (boundingVolume1.getMin().z() <= boundingVolume2.getMax().z() && boundingVolume1.getMax().z() >= boundingVolume2.getMin().z());
 }
 
 bool MeshCollider::intersectBoundingSpheres(vmml::AABBf boundingVolume1, vmml::AABBf boundingVolume2)
@@ -218,13 +220,13 @@ bool MeshCollider::intersectBoundingSpheres(vmml::AABBf boundingVolume1, vmml::A
 
 bool MeshCollider::intersectBoundingBoxWithSphere(vmml::AABBf box, vmml::AABBf sphere)
 {
-	float radius = sphere.getMax().x() - sphere.getCenter().x();
+	//float radius = sphere.getMax().x() - sphere.getCenter().x();
 
-	float distance = (sphere.getCenter() - box.getCenter()).norm();
-	float radiusBox = box.getDimension().norm()*0.5;
-	float radiusSphere = sphere.getDimension().norm()*0.5;
+	//float distance = (sphere.getCenter() - box.getCenter()).norm();
+	//float radiusBox = box.getDimension().norm()*0.5;
+	//float radiusSphere = sphere.getDimension().norm()*0.5;
 
-	return distance <= radiusBox + radiusSphere;
+	return intersectBoundingSpheres(box, sphere);
 }
 
 bool MeshCollider::doesIntersect(MeshTriangle colliderTriangleWorld1, MeshTriangle colliderTriangleWorld2)

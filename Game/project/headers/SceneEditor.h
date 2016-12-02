@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "InputController.h"
 #include "FreeCamera.h"
+#include "PlacerBlockRigidBody.h"
 
 class Scene; // forward declaration
 
@@ -14,8 +15,9 @@ class SceneEditor {
 public:
 
 	SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputControllerPtr inputController, FreeCameraPtr freeCamera);
+	~SceneEditor() { delete placerBlock; }
 
-	void update();
+	void update(const double &deltaTime);
 
 
 private:
@@ -24,6 +26,7 @@ private:
 	ModelRendererPtr _modelRenderer;
 	InputControllerPtr _inputController;
 	FreeCameraPtr _freeCamera;
+	PlacerBlockRigidBody *placerBlock;
 
 	bool _lastLeftMouseButtonState;
 };

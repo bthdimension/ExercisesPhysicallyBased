@@ -2,12 +2,13 @@
 #define SCENE_H
 
 #include "bRenderer.h"
-#include "Block.h"
+#include "BlockRigidBody.h"
 #include "InputController.h"
 #include "FreeCamera.h"
 #include "SceneEditor.h"
 #include "Lighting.h"
-#include "Sphere.h"
+#include "SphereRigidBody.h"
+#include "FloorRigidBody.h"
 #include "OctTreeNode.h"
 
 class SceneEditor; // forward declaration
@@ -25,6 +26,9 @@ public:
 
 	void loop(const double &deltaTime, bool* running);
 
+	OctTreeNodePtr getOctree() { return _octTree; }
+
+	const int NUM_SPHERES = 5;
 
 private:
 

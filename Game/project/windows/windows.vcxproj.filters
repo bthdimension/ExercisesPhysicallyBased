@@ -225,9 +225,6 @@
     <ClCompile Include="..\implementation\Scene.cpp">
       <Filter>project\implementation</Filter>
     </ClCompile>
-    <ClCompile Include="..\implementation\Block.cpp">
-      <Filter>project\implementation</Filter>
-    </ClCompile>
     <ClCompile Include="..\implementation\ResourceManager.cpp">
       <Filter>project\implementation</Filter>
     </ClCompile>
@@ -238,9 +235,6 @@
       <Filter>project\implementation</Filter>
     </ClCompile>
     <ClCompile Include="..\implementation\OctTreeNode.cpp">
-      <Filter>project\implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\implementation\Sphere.cpp">
       <Filter>project\implementation</Filter>
     </ClCompile>
     <ClCompile Include="..\..\bRenderer\implementation\Font.cpp">
@@ -324,6 +318,15 @@
     <ClCompile Include="..\implementation\ARigidBodyOctree.cpp">
       <Filter>project\implementation</Filter>
     </ClCompile>
+    <ClCompile Include="..\implementation\BlockRigidBody.cpp">
+      <Filter>project\implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\implementation\SphereRigidBody.cpp">
+      <Filter>project\implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\implementation\PlacerBlockRigidBody.cpp">
+      <Filter>project\implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\bRenderer\bRenderer.h">
@@ -380,9 +383,6 @@
     <ClInclude Include="..\headers\Scene.h">
       <Filter>project\headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\headers\Block.h">
-      <Filter>project\headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\headers\ResourceManager.h">
       <Filter>project\headers</Filter>
     </ClInclude>
@@ -393,9 +393,6 @@
       <Filter>project\headers</Filter>
     </ClInclude>
     <ClInclude Include="..\headers\OctTreeNode.h">
-      <Filter>project\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\headers\Sphere.h">
       <Filter>project\headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bRenderer\headers\FileHandler.h">
@@ -519,6 +516,18 @@
       <Filter>bRenderer\headers</Filter>
     </ClInclude>
     <ClInclude Include="..\headers\ARigidBodyOctree.h">
+      <Filter>project\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\headers\FloorRigidBody.h">
+      <Filter>project\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\headers\BlockRigidBody.h">
+      <Filter>project\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\headers\SphereRigidBody.h">
+      <Filter>project\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\headers\PlacerBlockRigidBody.h">
       <Filter>project\headers</Filter>
     </ClInclude>
   </ItemGroup>

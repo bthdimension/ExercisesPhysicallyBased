@@ -111,13 +111,20 @@ void OctTreeNode::collide() {
 
 		// if leaf collide all objects
 		if (_depth <= 1) {
-			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
-				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j != _rigidBodies.size(); j++) {
-					std::cout << "Testing two Objects\n"; // TODO
+			if(_rigidBodies.size() > 1)
+			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size(); i++) {
+				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
 					if (_rigidBodies[i]->doesIntersect(_rigidBodies[j])) {
-						std::cout << "COLLISION!!!!!!!\n"; // TODO
-						_rigidBodies[i]->setVelocity(-_rigidBodies[i]->getVelocity());
-						_rigidBodies[j]->setVelocity(-_rigidBodies[j]->getVelocity());
+						
+						if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
+							bRenderer::log("Collision between two blocks");
+						if (!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && _rigidBodies[j]->getMeshCollider()->isPerfectSphere()
+							||
+							_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
+							bRenderer::log("Collision between a block and a sphere");
+
+						_rigidBodies[i]->handleCollision(_rigidBodies[j]);
+						_rigidBodies[j]->handleCollision(_rigidBodies[i]);
 					}
 				}
 			}
