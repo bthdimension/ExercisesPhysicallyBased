@@ -179,6 +179,7 @@
     <ClInclude Include="..\..\bRenderer\external\obj_parser\obj.hpp" />
     <ClInclude Include="..\..\bRenderer\external\obj_parser\obj_parser.hpp" />
     <ClInclude Include="..\..\bRenderer\headers\Camera.h" />
+    <ClInclude Include="..\..\bRenderer\headers\CollisionFunctions.h" />
     <ClInclude Include="..\..\bRenderer\headers\Configuration.h" />
     <ClInclude Include="..\..\bRenderer\headers\CubeMap.h" />
     <ClInclude Include="..\..\bRenderer\headers\DepthMap.h" />

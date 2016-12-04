@@ -10,7 +10,7 @@ public:
 
 	PlacerBlockRigidBody(ModelPtr model) : BlockRigidBody(model) {}
 
-	PlacerBlockRigidBody(ModelPtr model, vmml::Vector3f position) : BlockRigidBody(model, position) {}
+	PlacerBlockRigidBody(ModelPtr model, vmml::Vector3f position, vmml::Vector3f rotationAxes) : BlockRigidBody(model, position, rotationAxes) {}
 
 	void update(const double &deltaTime) override;
 

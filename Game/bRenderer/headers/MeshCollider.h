@@ -7,6 +7,7 @@
 #include "vmmlib/aabb.hpp"
 
 typedef std::vector<vmml::Vector3f>	MeshTriangle;
+typedef std::vector<vmml::Vector2f>	MeshTriangle2D;
 class IRigidBody;
 
 /** @brief A mesh collider can be used to detect collisions between meshes.
@@ -86,6 +87,7 @@ public:
 
 	// Static Functions
 	static bool doesIntersect(MeshTriangle triangleWorld1, MeshTriangle triangleWorld2);
+	//static bool doesIntersect(MeshTriangle2D triangleWorld1, MeshTriangle2D triangleWorld2);
 	static bool intersectBoundingBoxes(vmml::AABBf boundingVolume1, vmml::AABBf boundingVolume2);
 	static bool intersectBoundingSpheres(vmml::AABBf boundingVolume1, vmml::AABBf boundingVolume2);
 	static bool intersectBoundingBoxWithSphere(vmml::AABBf box, vmml::AABBf sphere);

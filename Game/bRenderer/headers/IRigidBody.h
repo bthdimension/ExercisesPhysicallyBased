@@ -56,12 +56,12 @@ public:
 
 	void updateWorldMatrix()
 	{
-		_worldMatrix = vmml::create_scaling(getScale()) * getRotation() * vmml::create_translation(getPosition());
+		_worldMatrix =  vmml::create_translation(getPosition()) * vmml::create_scaling(getScale()) * getRotation();
 	}
 
 	void updateInverseWorldMatrix()
 	{
-		_inverseWorldMatrix = vmml::create_translation(-getPosition()) * getInverseRotation() * vmml::create_scaling(vmml::Vector3f(1.f / _scale.x(), 1.f / _scale.y(), 1.f / _scale.z()));
+		_inverseWorldMatrix = getInverseRotation() * vmml::create_scaling(vmml::Vector3f(1.f / _scale.x(), 1.f / _scale.y(), 1.f / _scale.z())) * vmml::create_translation(-getPosition());
 	}
 
 	void updateRotationMatrix()

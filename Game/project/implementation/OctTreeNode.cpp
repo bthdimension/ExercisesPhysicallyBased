@@ -104,8 +104,8 @@ void OctTreeNode::unregisterRigidBody(ARigidBodyOctree* rigidBody) {
 }
 
 
-void OctTreeNode::collide() {
-
+bool OctTreeNode::collide() {
+	bool collisionsFound = false;
 	// only continue colliding down the tree if node has leaves with elements
 	if (_numOfElementsInLeaves > 0) {
 
@@ -115,13 +115,13 @@ void OctTreeNode::collide() {
 			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size(); i++) {
 				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
 					if (_rigidBodies[i]->doesIntersect(_rigidBodies[j])) {
-						
-						if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
+						collisionsFound = true;
+						/*if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
 							bRenderer::log("Collision between two blocks");
 						if (!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && _rigidBodies[j]->getMeshCollider()->isPerfectSphere()
 							||
 							_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
-							bRenderer::log("Collision between a block and a sphere");
+							bRenderer::log("Collision between a block and a sphere");*/
 
 						_rigidBodies[i]->handleCollision(_rigidBodies[j]);
 						_rigidBodies[j]->handleCollision(_rigidBodies[i]);
@@ -133,8 +133,9 @@ void OctTreeNode::collide() {
 		// if not leaf, get all children to collide
 		else {
 			for (int i = 0; i < 8; i++) {
-				_childNodes[i].collide();
+				if(_childNodes[i].collide()) collisionsFound = true;
 			}
 		}
 	}
+	return collisionsFound;
 }

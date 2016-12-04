@@ -530,6 +530,9 @@
     <ClInclude Include="..\headers\PlacerBlockRigidBody.h">
       <Filter>project\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\bRenderer\headers\CollisionFunctions.h">
+      <Filter>bRenderer\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\bRenderer\os_specific\ios\FileHandler_ios.mm">

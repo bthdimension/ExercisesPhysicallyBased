@@ -18,7 +18,9 @@ public:
 	std::vector<OctTreeNode*> registerRigidBody(ARigidBodyOctree* ridigBody);
 	void unregisterRigidBody(ARigidBodyOctree* ridigBody);
 
-	void collide();
+	/**	@brief Finds and resolves collisions in (sub)tree, returns false if no collisions are found
+	*/
+	bool collide();
 
 
 private:

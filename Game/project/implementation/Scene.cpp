@@ -77,7 +77,7 @@ void Scene::draw() {
 	_modelRenderer->drawQueue(/*GL_LINES*/);
 	_modelRenderer->clearQueue();
 
-	vmml::Matrix4f modelMatrix = vmml::create_translation(vmml::Vector3f(0.0f, -1.f, 0.0f)) * vmml::create_scaling(vmml::Vector3f(1.0f));
+	vmml::Matrix4f modelMatrix = vmml::create_translation(vmml::Vector3f(0.0f, 0.f, 0.0f)) * vmml::create_scaling(vmml::Vector3f(1.0f));
 	_modelRenderer->queueModelInstance("base", "base", "camera", modelMatrix, std::vector<std::string>({ "sun", "moon" }), true, true);
 
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {

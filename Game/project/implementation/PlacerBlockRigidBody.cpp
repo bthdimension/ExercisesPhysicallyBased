@@ -19,9 +19,13 @@ void PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider /*, other 
 		vmml::AABBf aabbCol = collider->getMeshCollider()->getBoundingVolumeWorldSpace();
 		float height = aabbCol.getMax().y() - aabbThis.getMin().y();
 		setPosition(getPosition() + vmml::Vector3f(0.f, height, 0.f));
+
+		updateMatrices();
+		registerInOctTree();
 	}
 
-	updateMatrices();
+	
+
 }
 
 void PlacerBlockRigidBody::draw(ModelRendererPtr modelRenderer, int id) {
