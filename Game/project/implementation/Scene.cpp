@@ -65,11 +65,19 @@ void Scene::addRigidBody(ARigidBodyOctree* rigidBody) {
 
 
 void Scene::update(const double &deltaTime) {
+    
+    
+    if(deltaTime < 0.0001){
+        _sceneEditor->update(deltaTime);
+        
+    }
+    
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
 		_rigidBodies[i]->update(deltaTime);
 	}
 	_octTree->collide();
-	_sceneEditor->update(deltaTime);
+    
+	
 }
 
 

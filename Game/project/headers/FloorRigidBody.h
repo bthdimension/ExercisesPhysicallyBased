@@ -12,9 +12,9 @@ public:
 
 	FloorRigidBody(ModelPtr model, vmml::Vector3f position) : ARigidBodyOctree(model, position) {}
 
-	void FloorRigidBody::update(const double &deltaTime) override {}
+	void update(const double &deltaTime) override {}
 
-	void FloorRigidBody::handleCollision(ARigidBodyOctree *collider /*, other stuff*/) override	{}
+	void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) override	{}
 
 	void draw(ModelRendererPtr modelRenderer, int id) {
 		modelRenderer->queueModelInstance(

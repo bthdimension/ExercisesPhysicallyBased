@@ -8,7 +8,7 @@ SettingsController::SettingsController(Renderer* bRenderer) {
 
 void SettingsController::setup() {
 
-	bRenderer::setStandardFilePath("../data");
+	bRenderer::setStandardFilePath("../../project/data");
 	bRenderer::loadConfigFile("config.json");	// load custom configurations replacing the default values in Configuration.cpp
 
 	int windowWidth = 1200;

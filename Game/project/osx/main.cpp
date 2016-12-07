@@ -1,14 +1,11 @@
 #include "bRenderer.h"
-#include "RenderProject.h"
+#include "Game.h"
 
-int main(void)
-{
-	bRenderer::setStandardFilePath("project/data");
+int main(void) {
 
-	// Create and initialize the RenderProject
-	RenderProject *project = new RenderProject();
-	project->init();
-	delete project;
+	Game *game = new Game();
+	game->init();
+	delete game;
 
 	std::cout << "press ENTER to quit" << std::endl;
 	std::cin.ignore();

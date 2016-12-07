@@ -5,15 +5,28 @@
 void BlockRigidBody::update(const double &deltaTime) {
 	// TODO do physics of block here
 
-	setPosition(getPosition() + getVelocity() * deltaTime);
-
+	//
+    vmml::Vector3f currPos = getPosition();
+    
+    vmml::Vector3f f(0.f,-9.81f, 0.f);
+    
+    
+    //    v2 = ((m - dt * dforcedv) * v2 + dt * (springForce2 + dampingForce2 - m * g)) / (m - dt * dforcedv - dt * dt * dforcedx );
+    
+    
+    setVelocity(getVelocity() + f * deltaTime);
+    
+    setPosition(getPosition() + getVelocity() * deltaTime);
+    
 	updateMatrices();
 
 	registerInOctTree();
 }
 
-void BlockRigidBody::handleCollision(ARigidBodyOctree *collider /*, other stuff*/)
-{
+void BlockRigidBody::handleCollision(ARigidBodyOctree *collider /*, other stuff*/){
+    
+    setVelocity(-getVelocity());
+    
 	
 }
 

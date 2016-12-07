@@ -11,7 +11,7 @@ class ARigidBodyOctree; // forward declaration
 class OctTreeNode {
 
 public:
-
+    OctTreeNode(){};
 	OctTreeNode(OctTreeNode* parent, int depth, vmml::AABBf aabb);
 	~OctTreeNode();
 
