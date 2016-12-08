@@ -10,6 +10,7 @@
 #include "SphereRigidBody.h"
 #include "FloorRigidBody.h"
 #include "OctTreeNode.h"
+#include "Solver.h"
 
 class SceneEditor; // forward declaration
 typedef std::shared_ptr< SceneEditor >  SceneEditorPtr; // forward declaration
@@ -28,7 +29,7 @@ public:
 
 	OctTreeNodePtr getOctree() { return _octTree; }
 
-	const int NUM_SPHERES = 5;
+	const int NUM_SPHERES = 1;
 
 private:
 
@@ -51,6 +52,8 @@ private:
 
 	std::vector<ARigidBodyOctree*> _rigidBodies;
 	OctTreeNodePtr _octTree;
+
+	SolverPtr _solver;
 
 };
 

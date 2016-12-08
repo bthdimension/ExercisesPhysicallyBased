@@ -17,6 +17,16 @@ void BlockRigidBody::update(const double &deltaTime) {
     setVelocity(getVelocity() + f * deltaTime);
     
     setPosition(getPosition() + getVelocity() * deltaTime);
+
+	vmml::Vector3f currRot = getAxesRotation();
+
+	currRot.y() = currRot.y() + deltaTime * 0.25 * 3.1412;
+
+	if (getPosition().y() < 1.0) {
+		currPos = getPosition();
+		currPos.y() = 1.0;
+		setPosition(currPos);
+	}
     
 	updateMatrices();
 

@@ -17,6 +17,8 @@ public:
 	SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputControllerPtr inputController, FreeCameraPtr freeCamera);
 	~SceneEditor() { /*don't delete placerBlock, is deleted in octree */ }
 
+	void createDebugScene();
+
 	void update(const double &deltaTime);
 
 

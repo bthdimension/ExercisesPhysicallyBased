@@ -20,10 +20,13 @@ Scene::Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCamera
 	));
 
 	_sceneEditor = SceneEditorPtr(new SceneEditor(this, _modelRenderer, inputController, freeCamera));
+	_sceneEditor->createDebugScene();
+
+	_solver = SolverPtr(new Solver());
 
 	//addRigidBody(new FloorRigidBody(_modelRenderer->getObjectManager()->getModel("base")));
 
-	generateSpheres();
+	//generateSpheres();
 }
 
 
@@ -48,7 +51,8 @@ void Scene::generateSpheres() {
 }
 
 
-void Scene::loop(const double &deltaTime, bool* running) {	
+void Scene::loop(const double &deltaTime, bool* running) {
+	_solver->assembleMatrices(_rigidBodies);
 	if (*running) {
 		update(deltaTime);
 	}
@@ -66,11 +70,7 @@ void Scene::addRigidBody(ARigidBodyOctree* rigidBody) {
 
 void Scene::update(const double &deltaTime) {
     
-    
-    if(deltaTime < 0.0001){
-        _sceneEditor->update(deltaTime);
-        
-    }
+    //_sceneEditor->update(deltaTime);
     
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
 		_rigidBodies[i]->update(deltaTime);
