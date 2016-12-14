@@ -14,7 +14,7 @@ public:
 	SphereRigidBody(ModelPtr model, vmml::Vector3f position);
 
 	void update(const double &deltaTime) override;
-	void handleCollision(ARigidBodyOctree * collider /*, other stuff*/) override;
+	bool handleCollision(ARigidBodyOctree * collider, vmml::Vector3f &minimumTranslationVector) override;
 	void draw(ModelRendererPtr modelRenderer, int id) override;
 
 private:

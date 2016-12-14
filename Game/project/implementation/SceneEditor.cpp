@@ -7,11 +7,11 @@ SceneEditor::SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputCont
 	_inputController = inputController;
 	_freeCamera = freeCamera;
 
-	/*placerBlock = new PlacerBlockRigidBody(_modelRenderer->getObjectManager()->getModel("block"));
+	placerBlock = new PlacerBlockRigidBody(_modelRenderer->getObjectManager()->getModel("block"));
 
     _scene->addRigidBody(placerBlock);
 	placerBlock->setOctTree(_scene->getOctree());
-	placerBlock->registerInOctTree();*/
+	placerBlock->registerInOctTree();
 
 	_lastLeftMouseButtonState = false;
 }
@@ -31,7 +31,6 @@ void SceneEditor::createDebugScene() {
 
 
 void SceneEditor::update(const double &deltaTime) {
-	return;
     
 	bool leftMouseDown = _inputController->isLeftMouseButtonDown();
 	placerBlock->setVisible(false);

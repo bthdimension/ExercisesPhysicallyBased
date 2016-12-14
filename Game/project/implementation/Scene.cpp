@@ -70,7 +70,7 @@ void Scene::addRigidBody(ARigidBodyOctree* rigidBody) {
 
 void Scene::update(const double &deltaTime) {
     
-    //_sceneEditor->update(deltaTime);
+    _sceneEditor->update(deltaTime);
     
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
 		_rigidBodies[i]->update(deltaTime);

@@ -26,9 +26,10 @@ void SphereRigidBody::update(const double &deltaTime) {
 }
 
 
-void SphereRigidBody::handleCollision(ARigidBodyOctree *collider /*, other stuff*/)
+bool SphereRigidBody::handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector)
 {
-	setVelocity(-getVelocity());
+	//setVelocity(-getVelocity());
+	return false;
 }
 
 void SphereRigidBody::draw(ModelRendererPtr modelRenderer, int id) {

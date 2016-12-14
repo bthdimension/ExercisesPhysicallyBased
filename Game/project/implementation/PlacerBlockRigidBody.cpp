@@ -9,10 +9,13 @@ void PlacerBlockRigidBody::update(const double &deltaTime)
 	float height = aabbThis.getMax().y() - aabbThis.getMin().y();
 	setPosition(vmml::Vector3f(pos.x(), height, pos.z()));
 
-	BlockRigidBody::update(deltaTime);
+	/*BlockRigidBody::update(deltaTime);*/
+	updateMatrices();
+
+	registerInOctTree();
 }
 
-void PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider /*, other stuff*/)
+bool PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector)
 {
 	if (!collider->getMeshCollider()->isPerfectSphere()) {
 		vmml::AABBf aabbThis = getMeshCollider()->getBoundingVolumeWorldSpace();
@@ -20,8 +23,10 @@ void PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider /*, other 
 		float height = aabbCol.getMax().y() - aabbThis.getMin().y();
 		setPosition(getPosition() + vmml::Vector3f(0.f, height, 0.f));
 
-		updateMatrices();
-		registerInOctTree();
+		//setPosition(getPosition() + minimumTranslationVector);
+
+		updateMatrices();		
+		return true;
 	}
 
 	

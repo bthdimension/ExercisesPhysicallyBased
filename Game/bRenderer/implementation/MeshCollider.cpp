@@ -1,6 +1,7 @@
 #include "headers/MeshCollider.h"
 #include "headers/IRigidBody.h"
 #include "headers/CollisionFunctions.h"
+#include "headers/Logger.h"
 
 MeshCollider::MeshCollider(ModelPtr model, IRigidBody *rigidBody, bool isPerfectSphere)
 {
@@ -32,8 +33,8 @@ void MeshCollider::initializeTriangles(ModelPtr model)
 	{
 		for (auto i = model->getGroups().begin(); i != model->getGroups().end(); ++i)
 		{
-			GeometryData::VboVertices v_vector;
 			GeometryData::VboIndices i_vector;
+			GeometryData::VboVertices v_vector;
 
 			GeometryPtr geometry = i->second;
 			Geometry::VertexDataPtr vertices = geometry->getVertexData();
@@ -50,11 +51,17 @@ void MeshCollider::initializeTriangles(ModelPtr model)
 			}
 
 			initializeTrianglesGeometry(i->first, v_vector, i_vector);
+
+			for (int n = 0; n < numVert; n++) {
+				if (std::find(_vertices.begin(), _vertices.end(), v_vector[n].position) == _vertices.end())
+					_vertices.push_back(v_vector[n].position);
+			}
+
 		}
 	}
 }
 
-void MeshCollider::initializeTrianglesGeometry(std::string geometryName, GeometryData::VboVertices vertices, GeometryData::VboIndices indices)
+void MeshCollider::initializeTrianglesGeometry(std::string geometryName, const GeometryData::VboVertices &vertices, const GeometryData::VboIndices &indices)
 {
 	MeshTriangle currentTriangle;
 	GeometryTriangles &triangles = _triangles[geometryName];
@@ -67,16 +74,38 @@ void MeshCollider::initializeTrianglesGeometry(std::string geometryName, Geometr
 	}
 }
 
-bool MeshCollider::doesIntersect(MeshCollider *meshCollider)
+
+
+bool MeshCollider::doesIntersect(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector)
 {
 		if (_isPerfectSphere && meshCollider->isPerfectSphere())
 		{
-			return intersectBoundingVolumes(meshCollider->getBoundingVolumeWorldSpace(), true);
+			return intersectBoundingVolumes(meshCollider->getBoundingVolumeWorldSpace(), minimumTranslationVector, true);
 		}
 		else if (_isPerfectSphere)
 		{
 			// go through all polygons of other mesh collider -> the other collider should do that itself
-			return meshCollider->doesIntersect(this);
+			return meshCollider->doesIntersect(this, minimumTranslationVector);
+		}
+		else {
+			// we are no perfect sphere, so we go through our polygons to find intersections
+			if (intersectBoundingBoxes(getBoundingVolumeWorldSpace(), meshCollider->getBoundingVolumeWorldSpace())) {
+				return GJK(meshCollider, minimumTranslationVector);
+			}
+		}
+		return false;
+}
+
+bool MeshCollider::doesIntersectTriangleIntersection(MeshCollider *meshCollider)
+{
+		if (_isPerfectSphere && meshCollider->isPerfectSphere())
+		{
+			return intersectBoundingVolumes(meshCollider->getBoundingVolumeWorldSpace(), nullptr, true);
+		}
+		else if (_isPerfectSphere)
+		{
+			// go through all polygons of other mesh collider -> the other collider should do that itself
+			return meshCollider->doesIntersect(this, nullptr);
 		}
 		else {
 			// we are no perfect sphere, so we go through our polygons to find intersections
@@ -92,7 +121,7 @@ bool MeshCollider::doesIntersect(MeshCollider *meshCollider)
 		return false;
 }
 
-bool MeshCollider::doesIntersect(MeshTriangle colliderTriangle)
+bool MeshCollider::doesIntersect(MeshTriangle &colliderTriangle)
 {
 	// TODO
 	/*if (_isPerfectSphere) {
@@ -108,17 +137,17 @@ bool MeshCollider::doesIntersect(MeshTriangle colliderTriangle)
 	return false;
 }
 
-bool MeshCollider::intersectBoundingVolumes(vmml::AABBf boundingVolumeWorld, bool isSphere)
+bool MeshCollider::intersectBoundingVolumes(const vmml::AABBf &boundingVolumeWorld, vmml::Vector3f *minimumTranslationVector, bool isSphere)
 {
 	if (_isPerfectSphere && isSphere) {
-		return intersectBoundingSpheres(boundingVolumeWorld, getBoundingVolumeWorldSpace());
+		return intersectBoundingSpheres(boundingVolumeWorld, getBoundingVolumeWorldSpace(), minimumTranslationVector);
 	}
-	else if (_isPerfectSphere) {
-		return intersectBoundingBoxWithSphere(boundingVolumeWorld, getBoundingVolumeWorldSpace());
-	}
-	else if (isSphere) {
-		return intersectBoundingBoxWithSphere(getBoundingVolumeWorldSpace(), boundingVolumeWorld);
-	}
+	//else if (_isPerfectSphere) {
+	//	return intersectBoundingBoxWithSphere(boundingVolumeWorld, getBoundingVolumeWorldSpace());
+	//}
+	//else if (isSphere) {
+	//	return intersectBoundingBoxWithSphere(getBoundingVolumeWorldSpace(), boundingVolumeWorld);
+	//}
 	else {
 		return intersectBoundingBoxes(getBoundingVolumeWorldSpace(), boundingVolumeWorld);
 	}
@@ -135,7 +164,7 @@ void MeshCollider::setIsPerfectSphere(bool isPerfectSphere) {
 	}
 }
 
-MeshTriangle MeshCollider::getColliderTriangleWorld(MeshTriangle triangle)
+MeshTriangle MeshCollider::getColliderTriangleWorld(const MeshTriangle &triangle)
 {
 	vmml::Matrix4f world = _rigidBody->getWorldMatrix();
 	return MeshTriangle({world*triangle[0], world*triangle[1], world*triangle[2]});
@@ -198,7 +227,7 @@ vmml::AABBf MeshCollider::getBoundingVolumeWorldSpace()
 
 // Static Functions
 
-bool MeshCollider::intersectBoundingBoxes(vmml::AABBf boundingVolume1, vmml::AABBf boundingVolume2)
+bool MeshCollider::intersectBoundingBoxes(const vmml::AABBf &boundingVolume1, const vmml::AABBf &boundingVolume2)
 {
 	return
 		(boundingVolume1.getMin().x() <= boundingVolume2.getMax().x() && boundingVolume1.getMax().x() >= boundingVolume2.getMin().x())
@@ -206,30 +235,34 @@ bool MeshCollider::intersectBoundingBoxes(vmml::AABBf boundingVolume1, vmml::AAB
 		&& (boundingVolume1.getMin().z() <= boundingVolume2.getMax().z() && boundingVolume1.getMax().z() >= boundingVolume2.getMin().z());
 }
 
-bool MeshCollider::intersectBoundingSpheres(vmml::AABBf boundingVolume1, vmml::AABBf boundingVolume2)
+bool MeshCollider::intersectBoundingSpheres(const vmml::AABBf &boundingVolume1, const vmml::AABBf &boundingVolume2, vmml::Vector3f *minimumTranslationVector)
 {
 	float radius1 = boundingVolume1.getMax().x() - boundingVolume1.getCenter().x();
 	float radius2 = boundingVolume2.getMax().x() - boundingVolume2.getCenter().x();
-	float distance = (boundingVolume1.getCenter() - boundingVolume2.getCenter()).norm();
+	vmml::Vector3f distVector = (boundingVolume1.getCenter() - boundingVolume2.getCenter());
+	float distance = distVector.norm();
 
-	if (distance <= (radius1 + radius2))
+	if (distance <= (radius1 + radius2)) {
+		distVector.normalize();
+		minimumTranslationVector = &(distVector*(radius1 + radius2) - distance);
 		return true;
+	}
 
 	return false;
 }
 
-bool MeshCollider::intersectBoundingBoxWithSphere(vmml::AABBf box, vmml::AABBf sphere)
-{
-	//float radius = sphere.getMax().x() - sphere.getCenter().x();
+//bool MeshCollider::intersectBoundingBoxWithSphere(const vmml::AABBf &box, const vmml::AABBf &sphere)
+//{
+//	//float radius = sphere.getMax().x() - sphere.getCenter().x();
+//
+//	//float distance = (sphere.getCenter() - box.getCenter()).norm();
+//	//float radiusBox = box.getDimension().norm()*0.5;
+//	//float radiusSphere = sphere.getDimension().norm()*0.5;
+//
+//	return intersectBoundingSpheres(box, sphere);
+//}
 
-	//float distance = (sphere.getCenter() - box.getCenter()).norm();
-	//float radiusBox = box.getDimension().norm()*0.5;
-	//float radiusSphere = sphere.getDimension().norm()*0.5;
-
-	return intersectBoundingSpheres(box, sphere);
-}
-
-bool MeshCollider::doesIntersect(MeshTriangle colliderTriangleWorld1, MeshTriangle colliderTriangleWorld2)
+bool MeshCollider::doesIntersect(MeshTriangle &colliderTriangleWorld1, MeshTriangle &colliderTriangleWorld2)
 {
 	if (NoDivTriTriIsect(colliderTriangleWorld1[0], colliderTriangleWorld1[1], colliderTriangleWorld1[2],
 		colliderTriangleWorld2[0], colliderTriangleWorld2[1], colliderTriangleWorld2[2]))
@@ -240,13 +273,13 @@ bool MeshCollider::doesIntersect(MeshTriangle colliderTriangleWorld1, MeshTriang
 	return false;
 }
 
-bool MeshCollider::doesIntersectBoundingSphere(vmml::AABBf boundingSphere, MeshTriangle triangleWorld, bool isPerfectSphere)
-{
-	// TODO
-	return false;
-}
+//bool MeshCollider::doesIntersectBoundingSphere(const vmml::AABBf &boundingSphere, const MeshTriangle &triangleWorld, bool isPerfectSphere)
+//{
+//	// TODO
+//	return false;
+//}
 
-float MeshCollider::getMaxAbsVectorValue(vmml::Vector3f vector)
+float MeshCollider::getMaxAbsVectorValue(const vmml::Vector3f &vector)
 {
 	float max = abs(vector.x());
 	if (abs(vector.y()) > max) max = abs(vector.y());
@@ -254,16 +287,155 @@ float MeshCollider::getMaxAbsVectorValue(vmml::Vector3f vector)
 	return max;
 }
 
-float MeshCollider::getVertexDistanceToPlane(vmml::Vector3f vertexToTest, vmml::Vector3f planeNormal, float d)
+
+bool MeshCollider::GJK(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector)
 {
-	return planeNormal.dot(vertexToTest) + d;
+	vmml::Vector3f direction = getBoundingVolumeWorldSpace().getCenter() - meshCollider->getBoundingVolumeWorldSpace().getCenter();
+	direction.normalize();
+	if (direction.norm() == 0) direction = { 1.f };
+
+	std::vector<vmml::Vector3f> simplex;
+	simplex.push_back(supportFunction(meshCollider, direction));
+	if (simplex[0].dot(direction) <= 0)
+		return false;
+
+	direction = -direction;
+
+	int n = 0;
+	while (n < MAXITER)
+	{
+		simplex.push_back(supportFunction(meshCollider, direction));
+
+		if (simplex.back().dot(direction) <= 0)
+			return false;
+		else if (checkSimplex(simplex, direction))
+			return true;
+		n++;
+	}
+
 }
 
-float MeshCollider::getLineParameterValue(vmml::Vector3f vertOnSide1, float distance1, vmml::Vector3f vertOnSide2, float distance2, vmml::Vector3f normalPlane1, vmml::Vector3f normalPlane2)
-{
-	vmml::Vector3f D = normalPlane1.cross(normalPlane2);
-	float p1 = D.dot(vertOnSide1);
-	float p2 = D.dot(vertOnSide2);
 
-	return p1 + (p2 - p1) * (distance1 / (distance1 - distance2));
+
+vmml::Vector3f MeshCollider::supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction)
+{
+	vmml::Vector3f a = farthestPointInDirection(direction);
+	vmml::Vector3f b = meshCollider->farthestPointInDirection(-direction);
+	return a - b;
+}
+
+vmml::Vector3f MeshCollider::farthestPointInDirection(const vmml::Vector3f & direction)
+{
+	// find vertex with with the highest dot product with the direction
+	vmml::Vector3f farthest = _vertices.at(0);
+	vmml::Vector3f directionObjSpace = _rigidBody->getInverseWorldMatrix() * direction;	// work in object space so we don't have to transform every triangle
+	directionObjSpace.normalize();
+	float max = directionObjSpace.dot(_vertices.at(0));
+
+	for (int i = 1; i < _vertices.size(); i++)
+	{
+		float projection = directionObjSpace.dot(_vertices.at(i));
+		if (projection > max)
+		{
+			farthest = _vertices.at(i);
+			max = projection;
+		}
+	}
+
+	farthest = _rigidBody->getWorldMatrix() * farthest; // transform vertex
+
+	return farthest;
+}
+
+bool MeshCollider::checkSimplex(std::vector<vmml::Vector3f> &simplex, vmml::Vector3f & direction)
+{
+	int simplexSize = simplex.size();
+
+	vmml::Vector3f a = simplex[simplexSize - 1]; // a needs to be newest point for algorithm to work!
+	vmml::Vector3f b = simplex[simplexSize  -2];
+	vmml::Vector3f aToOrigin = -a;
+	vmml::Vector3f ab = b - a;
+
+	if (simplexSize == 4)
+	{
+		vmml::Vector3f c = simplex[simplexSize - 3];
+		vmml::Vector3f d = simplex[simplexSize - 4];
+		vmml::Vector3f ac = c - a;
+		vmml::Vector3f ad = d - a;
+
+
+		if ((ab.cross(ac)).dot(aToOrigin) > 0)
+		{
+			// do triangle stuff
+		}
+		else if ((ac.cross(ad)).dot(aToOrigin) > 0)
+		{
+			// origin is in front of triangle acd
+			simplex = { d,c,a };
+		}
+		else if ((ad.cross(ab)).dot(aToOrigin) > 0)
+		{
+			// origin is in front of triangle adb
+			simplex = { b,d,a };
+		}
+		else {
+			// origin within
+			return true;
+		}
+	}
+
+	// here not else if since we may just have set a 3 point simplex above
+	if (simplexSize >= 3) // triangle
+	{
+		vmml::Vector3f c = simplex[simplexSize - 3];
+		vmml::Vector3f ac = c - a;
+		vmml::Vector3f abc = ab.cross(ac);
+		if ((abc.cross(ac)).dot(aToOrigin) > 0) // origin near ac edge outside trianle
+		{
+			if (ac.dot(aToOrigin) > 0) {
+				simplex = { c, a };
+				direction = ac.cross(aToOrigin).cross(ac);
+			}
+			else if (ab.dot(aToOrigin) > 0) {
+				simplex = { b, a };
+				direction = ab.cross(aToOrigin).cross(ab);
+			}
+			else {
+				simplex = { a };
+				direction = aToOrigin;
+			}
+		}
+		else if ((ab.cross(abc)).dot(aToOrigin) > 0) // origin near ab edge outside trianle
+		{
+			if (ab.dot(aToOrigin) > 0) {
+				simplex = { b, a };
+				direction = ab.cross(aToOrigin).cross(ab);
+			}
+			else {
+				simplex = { a };
+				direction = aToOrigin;
+			}
+			
+		}
+		else if (abc.dot(aToOrigin)> 0) // origin above triangle
+		{
+			direction = abc;
+		}
+		else { // origin below triangle
+			simplex = { b,c,a };
+			direction = -abc;
+		}
+	}
+	else // line
+	{		
+		if (ab.dot(aToOrigin) > 0) // edge closest to origin
+			direction = ab.cross(aToOrigin).cross(ab);
+		else { // point closest to origin
+			simplex = { a };
+			direction = aToOrigin;
+		}
+	}
+	direction.normalize();
+	return false;
+
 }

@@ -18,11 +18,13 @@ public:
 	ARigidBodyOctree(ModelPtr model, vmml::Vector3f position) : IRigidBody(model) { setPosition(position); }
 
 	virtual bool isInAABB(vmml::AABBf aabb) {
-		return getMeshCollider()->intersectBoundingVolumes(aabb, false);
+		return getMeshCollider()->intersectBoundingVolumes(aabb, nullptr, false);
 	}
 
 	virtual void draw(ModelRendererPtr modelRenderer, int id) = 0;
-	virtual void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) {}
+	
+	// returns true if position was changed
+	virtual bool handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector) { return false; }
 
 	void setOctTree(OctTreeNodePtr octTree);
 	void registerInOctTree();

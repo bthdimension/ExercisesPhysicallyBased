@@ -14,7 +14,7 @@ public:
 	BlockRigidBody(ModelPtr model, vmml::Vector3f position, vmml::Vector3f rotationAxes) : ARigidBodyOctree(model, position) { setAxesRotation(rotationAxes); }
 
 	void update(const double &deltaTime) override;
-	void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) override;
+	bool handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector) override;
 	void draw(ModelRendererPtr modelRenderer, int id) override;
 
 

@@ -26,7 +26,7 @@ public:
     // this function depends on the RB
 	virtual void update(const double &deltaTime) = 0;
     
-    virtual bool doesIntersect(IRigidBody * rigidBody);
+    virtual bool doesIntersect(IRigidBody * rigidBody, vmml::Vector3f *minimumTranslationVector);
 	
     // GET FUNCTIONS
 	vmml::Vector3f getScale();
@@ -126,8 +126,8 @@ inline IRigidBody::IRigidBody(ModelPtr model) {
 }
 
 
-inline bool IRigidBody::doesIntersect(IRigidBody* rigidBody) {
-    return _meshCollider->doesIntersect(rigidBody->getMeshCollider().get());
+inline bool IRigidBody::doesIntersect(IRigidBody* rigidBody, vmml::Vector3f *minimumTranslationVector) {
+    return _meshCollider->doesIntersect(rigidBody->getMeshCollider().get(), minimumTranslationVector);
 }
 
 
@@ -245,7 +245,8 @@ inline void IRigidBody::updateWorldMatrix(){
 
 
 inline void IRigidBody::updateInverseWorldMatrix(){
-    _inverseWorldMatrix = getInverseRotation() * vmml::create_scaling(vmml::Vector3f(1.f / _scale.x(), 1.f / _scale.y(), 1.f / _scale.z())) * vmml::create_translation(-getPosition());
+	vmml::Matrix4f inverse; inverse.inverse(getWorldMatrix()); inverse.transpose_to(inverse);
+	_inverseWorldMatrix = inverse;//getInverseRotation() * vmml::create_scaling(vmml::Vector3f(1.f / _scale.x(), 1.f / _scale.y(), 1.f / _scale.z())) * vmml::create_translation(-getPosition());
 }
 
 
@@ -255,7 +256,8 @@ inline void IRigidBody::updateRotationMatrix(){
 
 
 inline void IRigidBody::updateInverseRotationMatrix(){
-    getRotation().transpose_to(_inverseRotationMatrix);
+	_inverseRotationMatrix = getRotation();
+	_inverseRotationMatrix.transpose_to(_inverseRotationMatrix);
 }
 
 
