@@ -245,8 +245,7 @@ inline void IRigidBody::updateWorldMatrix(){
 
 
 inline void IRigidBody::updateInverseWorldMatrix(){
-	vmml::Matrix4f inverse; inverse.inverse(getWorldMatrix()); inverse.transpose_to(inverse);
-	_inverseWorldMatrix = inverse;//getInverseRotation() * vmml::create_scaling(vmml::Vector3f(1.f / _scale.x(), 1.f / _scale.y(), 1.f / _scale.z())) * vmml::create_translation(-getPosition());
+	_inverseWorldMatrix = getInverseRotation() * vmml::create_scaling(vmml::Vector3f(1.f / _scale.x(), 1.f / _scale.y(), 1.f / _scale.z())) * vmml::create_translation(-getPosition());
 }
 
 

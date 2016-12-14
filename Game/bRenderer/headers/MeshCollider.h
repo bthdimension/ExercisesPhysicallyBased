@@ -7,8 +7,18 @@
 #include "vmmlib/aabb.hpp"
 
 typedef std::vector<vmml::Vector3f>	MeshTriangle;
+typedef std::vector<vmml::Vector3f>	MeshEdge;
 typedef std::vector<vmml::Vector2f>	MeshTriangle2D;
+typedef std::vector<MeshTriangle>	GeometryTriangles;
+typedef std::vector<MeshEdge>	GeometryEdges;
 class IRigidBody;
+
+struct SupportPoint
+{
+	vmml::Vector3f a;
+	vmml::Vector3f b;
+	vmml::Vector3f diff;
+};
 
 /** @brief A mesh collider can be used to detect collisions between meshes.
 *	@author Benjamin Buergisser
@@ -17,8 +27,7 @@ class MeshCollider
 {
 public:
 
-	/* Typedefs */	
-	typedef std::vector<MeshTriangle>	GeometryTriangles;
+	/* Typedefs */		
 	typedef std::unordered_map< std::string, GeometryTriangles >	GeometryTrianglesMap;
 
 	/* Functions */
@@ -93,14 +102,16 @@ public:
 
 	
 	bool GJK(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector);
+
+	void EPA(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector, std::vector<vmml::Vector3f> &simplex);
 	
-	vmml::Vector3f supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction);
+	SupportPoint supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction);
 	
 	vmml::Vector3f farthestPointInDirection(const vmml::Vector3f & direction);
 
 	bool checkSimplex(std::vector<vmml::Vector3f> &simplex, vmml::Vector3f & direction);
 
-
+	void addEdge(GeometryEdges &edges, SupportPoint &a, SupportPoint &b);
 
 	// Static Functions
 	static bool doesIntersect(MeshTriangle &triangleWorld1, MeshTriangle &triangleWorld2);

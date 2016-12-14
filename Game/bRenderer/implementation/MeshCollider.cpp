@@ -295,7 +295,7 @@ bool MeshCollider::GJK(MeshCollider *meshCollider, vmml::Vector3f *minimumTransl
 	if (direction.norm() == 0) direction = { 1.f };
 
 	std::vector<vmml::Vector3f> simplex;
-	simplex.push_back(supportFunction(meshCollider, direction));
+	simplex.push_back(supportFunction(meshCollider, direction).diff);
 	if (simplex[0].dot(direction) <= 0)
 		return false;
 
@@ -304,45 +304,87 @@ bool MeshCollider::GJK(MeshCollider *meshCollider, vmml::Vector3f *minimumTransl
 	int n = 0;
 	while (n < MAXITER)
 	{
-		simplex.push_back(supportFunction(meshCollider, direction));
+		simplex.push_back(supportFunction(meshCollider, direction).diff);
 
 		if (simplex.back().dot(direction) <= 0)
 			return false;
-		else if (checkSimplex(simplex, direction))
+		else if (checkSimplex(simplex, direction)) {
+			EPA(meshCollider, minimumTranslationVector, simplex); // find minimum translation vector
 			return true;
+		}
 		n++;
 	}
 
 }
 
-
-
-vmml::Vector3f MeshCollider::supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction)
+vmml::Vector3f getNormal(vmml::Vector3f &a, vmml::Vector3f &b, vmml::Vector3f &c)
 {
-	vmml::Vector3f a = farthestPointInDirection(direction);
-	vmml::Vector3f b = meshCollider->farthestPointInDirection(-direction);
-	return a - b;
+	return (b - a).cross(c - a);
+}
+
+void MeshCollider::EPA(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector, std::vector<vmml::Vector3f> &simplex)
+{
+	//const float THRESH = 0.001f;
+	//GeometryEdges edges;
+	//GeometryTriangles triangles;
+
+	//// fourth entry [3] is normal!
+	//triangles.push_back({ simplex[3],simplex[2],simplex[1],getNormal(simplex[3],simplex[2],simplex[1]) });
+	//triangles.push_back({ simplex[3],simplex[1],simplex[0],getNormal(simplex[3],simplex[1],simplex[0]) });
+	//triangles.push_back({ simplex[3],simplex[0],simplex[2],getNormal(simplex[3],simplex[0],simplex[2]) });
+	//triangles.push_back({ simplex[2],simplex[0],simplex[1],getNormal(simplex[2],simplex[0],simplex[1]) });
+
+	//int n = 0;
+	//while (n < MAXITER)
+	//{
+	//	auto currentTriangleIt = triangles.begin();
+	//	float distance = FLT_MAX;
+
+	//	for (auto it = triangles.begin(); it != triangles.end(); it++) {
+	//		float dst = fabs(it->at[3] | it->at[0]);
+	//		if (dst < distance) {
+	//			distance = dst;
+	//			currentTriangleIt = it;
+	//		}
+	//	}
+
+	//	SupportPoint currentSupport = supportFunction(meshCollider,currentTriangleIt->at(3));
+	//	if (((currentTriangleIt->at(3) | currentSupport.diff) - distance < THRESH)) {
+
+	//	}
+	//}
+}
+
+
+SupportPoint MeshCollider::supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction)
+{
+	SupportPoint sup;
+	sup.a = farthestPointInDirection(direction);
+	sup.b = meshCollider->farthestPointInDirection(-direction);
+	sup.diff = sup.a - sup.b;
+	return sup;
 }
 
 vmml::Vector3f MeshCollider::farthestPointInDirection(const vmml::Vector3f & direction)
 {
 	// find vertex with with the highest dot product with the direction
-	vmml::Vector3f farthest = _vertices.at(0);
-	vmml::Vector3f directionObjSpace = _rigidBody->getInverseWorldMatrix() * direction;	// work in object space so we don't have to transform every triangle
+	vmml::Vector3f farthest = _rigidBody->getWorldMatrix()*_vertices.at(0);
+	vmml::Vector3f directionObjSpace = direction;	// work in object space so we don't have to transform every triangle
 	directionObjSpace.normalize();
-	float max = directionObjSpace.dot(_vertices.at(0));
+	float max = directionObjSpace.dot(farthest);
+
+	vmml::Vector3f temp;
 
 	for (int i = 1; i < _vertices.size(); i++)
 	{
-		float projection = directionObjSpace.dot(_vertices.at(i));
+		temp = _rigidBody->getWorldMatrix()*_vertices.at(i);
+		float projection = directionObjSpace.dot(temp);
 		if (projection > max)
 		{
-			farthest = _vertices.at(i);
+			farthest = temp;
 			max = projection;
 		}
 	}
-
-	farthest = _rigidBody->getWorldMatrix() * farthest; // transform vertex
 
 	return farthest;
 }
@@ -438,4 +480,17 @@ bool MeshCollider::checkSimplex(std::vector<vmml::Vector3f> &simplex, vmml::Vect
 	direction.normalize();
 	return false;
 
+}
+
+void MeshCollider::addEdge(GeometryEdges &edges, SupportPoint &a, SupportPoint &b)
+{
+	for (auto it = edges.begin(); it != edges.end(); it++) {
+		if (it->at(0) == b.diff && it->at(1) == a.diff) {
+			//opposite edge found, remove it and do not add new one
+			edges.erase(it);
+			return;
+		}
+	}
+	MeshEdge edge = { a.diff, b.diff };
+	edges.emplace_back(edge);
 }
