@@ -150,7 +150,7 @@ public:
 
 	bool EPA(MeshCollider *meshCollider, CollisionInformation *collisionInformation, std::vector<SupportPoint> &simplex);
 	
-	SupportPoint supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction);
+	SupportPoint supportFunction(MeshCollider *meshCollider, vmml::Vector3f & direction);
 	
 	vmml::Vector3f farthestPointInDirection(const vmml::Vector3f & direction);
 

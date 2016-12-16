@@ -293,16 +293,18 @@ float MeshCollider::getMaxAbsVectorValue(const vmml::Vector3f &vector)
 
 bool MeshCollider::GJK(MeshCollider *meshCollider, CollisionInformation *collisionInformation)
 {
-	vmml::Vector3f direction = getBoundingVolumeWorldSpace().getCenter() - meshCollider->getBoundingVolumeWorldSpace().getCenter();
-	direction.normalize();
-	if (direction.norm() == 0) direction = { 1.f };
+	vmml::Vector3f direction = { 1,0,0 };
 
 	std::vector<SupportPoint> simplex;
 	simplex.push_back(supportFunction(meshCollider, direction));
-	if (simplex[0].diff.dot(direction) <= 0)
-		return false;
 
-	direction = -direction;
+	if (abs(direction.dot(simplex[0].diff)) >= simplex[0].diff.norm() *0.8f) {
+		// the chosen direction is invalid, will produce (0,0,0) for a subsequent direction later
+		direction = { 0,1,0 };
+		simplex[0] = supportFunction(meshCollider, direction);
+	}
+
+	direction = -simplex[0].diff;
 
 	int n = 0;
 	while (n < MAXITER)
@@ -338,7 +340,6 @@ bool MeshCollider::EPA(MeshCollider *meshCollider, CollisionInformation *collisi
 	SupportPointEdgesList edges;
 	SupportPointTrianglesList triangles;
 
-	// fourth entry [3] is normal!
 	triangles.push_back({ simplex[3],simplex[2],simplex[1] });
 	triangles.push_back({ simplex[3],simplex[1],simplex[0] });
 	triangles.push_back({ simplex[3],simplex[0],simplex[2] });
@@ -351,7 +352,7 @@ bool MeshCollider::EPA(MeshCollider *meshCollider, CollisionInformation *collisi
 		auto currentTriangleIt = triangles.begin();
 		float distance = FLT_MAX;
 		for (auto it = triangles.begin(); it != triangles.end(); it++) {
-			float dst = fabs(it->normal.dot( it->atDiff(0) ));
+			float dst = abs(it->normal.dot( it->atDiff(0) ));
 			if (dst < distance) {
 				distance = dst;
 				currentTriangleIt = it;
@@ -360,7 +361,7 @@ bool MeshCollider::EPA(MeshCollider *meshCollider, CollisionInformation *collisi
 		vmml::Vector3f n = currentTriangleIt._Ptr->normal;
 
 		SupportPoint currentSupport = supportFunction(meshCollider,n);
-		if (((n.dot( currentSupport.diff )) - distance < THRESH)) {			
+		if ((n.dot( currentSupport.diff ) - distance < THRESH)) {			
 			return contactInformation(currentTriangleIt._Ptr, collisionInformation);
 		}
 
@@ -386,8 +387,9 @@ bool MeshCollider::EPA(MeshCollider *meshCollider, CollisionInformation *collisi
 }
 
 
-SupportPoint MeshCollider::supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction)
+SupportPoint MeshCollider::supportFunction(MeshCollider *meshCollider, vmml::Vector3f & direction)
 {
+	direction.normalize();
 	SupportPoint sup;
 	sup.a = farthestPointInDirection(direction);
 	sup.b = meshCollider->farthestPointInDirection(-direction);
@@ -427,9 +429,10 @@ bool MeshCollider::checkSimplex(std::vector<SupportPoint> &simplex, vmml::Vector
 	SupportPoint b = simplex[simplexSize  -2];
 	vmml::Vector3f aToOrigin = -a.diff;
 	vmml::Vector3f ab = b.diff - a.diff;
-
+	bool not4 = true;
 	if (simplexSize == 4)
 	{
+		not4 = false;
 		SupportPoint c = simplex[simplexSize - 3];
 		SupportPoint d = simplex[simplexSize - 4];
 		vmml::Vector3f ac = c.diff - a.diff;
@@ -464,48 +467,27 @@ bool MeshCollider::checkSimplex(std::vector<SupportPoint> &simplex, vmml::Vector
 		vmml::Vector3f abc = ab.cross(ac);
 		if ((abc.cross(ac)).dot(aToOrigin) > 0) // origin near ac edge outside trianle
 		{
-			if (ac.dot(aToOrigin) > 0) {
-				simplex = { c, a };
-				direction = ac.cross(aToOrigin).cross(ac);
-			}
-			else if (ab.dot(aToOrigin) > 0) {
-				simplex = { b, a };
-				direction = ab.cross(aToOrigin).cross(ab);
-			}
-			else {
-				simplex = { a };
-				direction = aToOrigin;
-			}
+			simplex = { c, a };
+			direction = ac.cross(aToOrigin).cross(ac);
 		}
 		else if ((ab.cross(abc)).dot(aToOrigin) > 0) // origin near ab edge outside trianle
 		{
-			if (ab.dot(aToOrigin) > 0) {
-				simplex = { b, a };
-				direction = ab.cross(aToOrigin).cross(ab);
-			}
-			else {
-				simplex = { a };
-				direction = aToOrigin;
-			}
-			
+			simplex = { b, a };
+			direction = ab.cross(aToOrigin).cross(ab);			
 		}
 		else if (abc.dot(aToOrigin)> 0) // origin above triangle
 		{
+			simplex = { c,b,a };
 			direction = abc;
 		}
-		else { // origin below triangle
+		else if (not4) { // origin below triangle
 			simplex = { b,c,a };
 			direction = -abc;
 		}
 	}
 	else // line
 	{		
-		if (ab.dot(aToOrigin) > 0) // edge closest to origin
-			direction = ab.cross(aToOrigin).cross(ab);
-		else { // point closest to origin
-			simplex = { a };
-			direction = aToOrigin;
-		}
+		direction = ab.cross(aToOrigin).cross(ab);
 	}
 	direction.normalize();
 	return false;
@@ -522,7 +504,7 @@ void MeshCollider::addEdge(SupportPointEdgesList &edges, SupportPoint &a, Suppor
 		}
 	}
 	SupportPointEdge edge = { a, b };
-	edges.emplace_back(edge);
+	edges.push_back(edge);
 }
 
 void barycentric(const vmml::Vector3f &p, const vmml::Vector3f &a, const vmml::Vector3f &b, const vmml::Vector3f &c, float *u, float *v, float *w) {
@@ -564,5 +546,6 @@ bool MeshCollider::contactInformation(SupportPointTriangle *triangle, CollisionI
 	collisionInformation->colNormal =			-triangle->normal;
 	collisionInformation->penetratonDepth =		distanceFromOrigin;
 	collisionInformation->collisionOccured =	true;
+
 	return true;
 }

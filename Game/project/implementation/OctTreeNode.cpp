@@ -115,11 +115,11 @@ bool OctTreeNode::collide() {
 			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size(); i++) {
 				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
 					CollisionInformation collisionInformation;
-					if (_rigidBodies[i] == _rigidBodies[j])
+					/*if (_rigidBodies[i] == _rigidBodies[j])
 					{
 						bRenderer::log("Same object stored twice in a node", bRenderer::LM_ERROR);
 					}
-					else if (_rigidBodies[i]->doesIntersect(_rigidBodies[j], &collisionInformation)) {
+					else */if (_rigidBodies[i]->doesIntersect(_rigidBodies[j], &collisionInformation)) {
 						collisionsFound = true;
 						/*if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
 							bRenderer::log("Collision between two blocks");
