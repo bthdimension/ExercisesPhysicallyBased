@@ -153,6 +153,7 @@
     <ClCompile Include="..\..\project\windows\main.cpp" />
     <ClCompile Include="..\implementation\ARigidBodyOctree.cpp" />
     <ClCompile Include="..\implementation\BlockRigidBody.cpp" />
+    <ClCompile Include="..\implementation\SupportPointCalculator.cpp" />
     <ClCompile Include="..\implementation\FloorRigidBody.cpp" />
     <ClCompile Include="..\implementation\FreeCamera.cpp" />
     <ClCompile Include="..\implementation\Game.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="..\..\bRenderer\headers\View.h" />
     <ClInclude Include="..\..\bRenderer\os_specific\ios\BView.h" />
     <ClInclude Include="..\headers\BlockRigidBody.h" />
+    <ClInclude Include="..\headers\SupportPointCalculator.h" />
     <ClInclude Include="..\headers\FloorRigidBody.h" />
     <ClInclude Include="..\headers\FreeCamera.h" />
     <ClInclude Include="..\headers\Game.h" />
