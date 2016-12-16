@@ -12,21 +12,24 @@ class ARigidBodyOctree : public IRigidBody{
 
 public:
 
-	ARigidBodyOctree(ModelPtr model) : IRigidBody(model) { _index = 0;  }
-	ARigidBodyOctree(ModelPtr model, vmml::Vector3f position) : IRigidBody(model) { setPosition(position); }
+	ARigidBodyOctree(ModelPtr model, vmml::Vector3f position, vmml::Vector3f axesRotation) : IRigidBody(model) {
+		setPosition(position);
+		setAxesRotation(axesRotation);
+	}
 
 	virtual bool isInAABB(vmml::AABBf aabb) {
-		return getMeshCollider()->intersectBoundingVolumes(aabb, false);
+		return getMeshCollider()->intersectBoundingVolumes(aabb, nullptr, false);
 	}
 
 	virtual void draw(ModelRendererPtr modelRenderer, int id) = 0;
-	virtual void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) {}
 
 	void setOctTree(OctTreeNodePtr octTree);
 	void registerInOctTree();
 
 	void setIndex(int index);
 	int getIndex();
+
+	virtual bool isFixed() = 0;
 
 	
 

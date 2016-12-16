@@ -15,6 +15,13 @@ Solver::Solver() {
 }
 
 
+void Solver::setRididBodyIndices(std::vector<ARigidBodyOctree*> bodies) {
+	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != bodies.size(); i++) {
+		bodies[i]->setIndex((int)i);
+	}
+}
+
+
 void Solver::createConstraintCheckMatrix(int size) {
 	_constraintCheckMatrix = ArrayXXi::Zero(size, size);
 }
@@ -52,8 +59,6 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 	Vector3f omega;
 
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != bodies.size(); i++) {
-
-		bodies[i]->setIndex((int)i);
 		
 		offset = (int)i * 6;
 
@@ -71,7 +76,11 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		_v.segment<3>(offset) = v;
 		_v.segment<3>(offset + 3) = omega;
 
-		_Fext.segment<3>(offset) = vec3fVmmlToEigen(bodies[i]->getForce());
+		if (bodies[i]->isFixed()) {
+			_Fext.segment<3>(offset) = Vector3f::Zero();
+		} else {
+			_Fext.segment<3>(offset) = vec3fVmmlToEigen(bodies[i]->getForce());
+		}
 	}
 
 	//std::cout << _M << std::endl << std::endl << _v << std::endl << std::endl;
@@ -107,18 +116,25 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 
 		
 		// START TEST SPHERE
-		delta = vec3fVmmlToEigen(body1->getPosition() - body2->getPosition());
-		n = delta;
+		n = vec3fVmmlToEigen(body2->getPosition() - body1->getPosition());
 		n.normalize();
 
-		r1 = n * -2.0; // TODO this is just sphere with radius 2
-		r2 = n * 2.0; // TODO this is just sphere with radius 2
+		r1 = n * 2.0; // TODO this is just sphere with radius 2
+		r2 = n * -2.0; // TODO this is just sphere with radius 2
 		// END TEST SPHERE
 
-		_J.block<1, 3>(i, body1offset) = -n.transpose();
-		_J.block<1, 3>(i, body1offset + 3) = -(r1.cross(n).transpose());
-		_J.block<1, 3>(i, body2offset) = n.transpose();
-		_J.block<1, 3>(i, body2offset + 3) = r2.cross(n).transpose();
+		if (body1->isFixed()) {
+			_J.block<1, 6>(i, body1offset) = ArrayXXf::Zero(1, 6);
+		} else {
+			_J.block<1, 3>(i, body1offset) = -n.transpose();
+			_J.block<1, 3>(i, body1offset + 3) = -(r1.cross(n).transpose());
+		} 
+		if (body2->isFixed()) {
+			_J.block<1, 6>(i, body2offset) = ArrayXXf::Zero(1, 6);
+		} else {
+			_J.block<1, 3>(i, body2offset) = n.transpose();
+			_J.block<1, 3>(i, body2offset + 3) = r2.cross(n).transpose();
+		}
 
 		_Jmap(i, 0) = body1->getIndex();
 		_Jmap(i, 1) = body2->getIndex();
@@ -188,8 +204,12 @@ void Solver::solveForLambda(float dt, int iterations) {
 
 
 void Solver::computeNewVelocity(float dt, std::vector<ARigidBodyOctree*> bodies) {
-	VectorXf v2 = _v + (dt * _Minv * _Fext);
-	//VectorXf v2 = _v + (dt * _Minv * ((_Jtrans * _lambda) + _Fext));
+	//VectorXf v2 = _v + (dt * _Minv * _Fext);
+	VectorXf v2 = _v + (dt * _Minv * ((_Jtrans * _lambda) + _Fext));
+	//std::cout << "_Minv = " << std::endl << _Minv << std::endl << std::endl;
+	//std::cout << "_Jtrans = " << std::endl << _Jtrans << std::endl << std::endl;
+	//std::cout << "_lamdba = " << std::endl << _lambda << std::endl << std::endl;
+	//std::cout << "_Fext = " << std::endl << _Fext << std::endl << std::endl;
 
 	int index;
 	int offset;

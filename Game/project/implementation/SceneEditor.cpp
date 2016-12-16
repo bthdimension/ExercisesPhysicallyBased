@@ -18,10 +18,10 @@ SceneEditor::SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputCont
 
 
 void SceneEditor::createDebugScene() {
-	for (int i = 0; i < 2; i++) {
+	for (int i = 1; i < 2; i++) {
 		float j = i * 30.f;
 		ModelPtr modelptr = _modelRenderer->getObjectManager()->getModel("block");
-		vmml::Vector3f pos = vmml::Vector3f(0.f, j + 1.0f, 0.0f);
+		vmml::Vector3f pos = vmml::Vector3f(0.5f, j + 1.0f, -0.5f);
 		vmml::Vector3f rotAx = vmml::Vector3f(0.f, 0.0f, 0.0f);
 
 		ARigidBodyOctree* rb = new BlockRigidBody(modelptr, pos, rotAx);
@@ -31,9 +31,8 @@ void SceneEditor::createDebugScene() {
 
 
 void SceneEditor::update(const double &deltaTime) {
-	return;
     
-	bool leftMouseDown = _inputController->isLeftMouseButtonDown();
+	/*bool leftMouseDown = _inputController->isLeftMouseButtonDown();
 	placerBlock->setVisible(false);
 
 	if (!leftMouseDown && leftMouseDown != _lastLeftMouseButtonState) {	
@@ -59,5 +58,5 @@ void SceneEditor::update(const double &deltaTime) {
 		placerBlock->setPosition(blockPosition);
 		placerBlock->setVisible(true);
 	//}
-	_lastLeftMouseButtonState = leftMouseDown;
+	_lastLeftMouseButtonState = leftMouseDown;*/
 }

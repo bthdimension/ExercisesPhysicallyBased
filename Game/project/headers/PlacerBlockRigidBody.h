@@ -8,14 +8,9 @@ class PlacerBlockRigidBody : public BlockRigidBody {
 
 public:
 
-	PlacerBlockRigidBody(ModelPtr model) : BlockRigidBody(model) {}
-
 	PlacerBlockRigidBody(ModelPtr model, vmml::Vector3f position, vmml::Vector3f rotationAxes) : BlockRigidBody(model, position, rotationAxes) {}
 
 	void update(const double &deltaTime) override;
-
-	void handleCollision(ARigidBodyOctree *collider /*, other stuff*/) override;
-
 	void draw(ModelRendererPtr modelRenderer, int id) override;
 
 	void setVisible(bool visibility) { _visible = visibility; }

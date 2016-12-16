@@ -1,11 +1,7 @@
 #include "SphereRigidBody.h"
 
 
-SphereRigidBody::SphereRigidBody(ModelPtr model) : ARigidBodyOctree(model) {
-	getMeshCollider()->setIsPerfectSphere(true);
-}
-
-SphereRigidBody::SphereRigidBody(ModelPtr model, vmml::Vector3f position) : ARigidBodyOctree(model, position) {
+SphereRigidBody::SphereRigidBody(ModelPtr model, vmml::Vector3f position, vmml::Vector3f axesRotation) : ARigidBodyOctree(model, position, axesRotation) {
 	getMeshCollider()->setIsPerfectSphere(true);
 }
 
@@ -26,11 +22,6 @@ void SphereRigidBody::update(const double &deltaTime) {
 }
 
 
-void SphereRigidBody::handleCollision(ARigidBodyOctree *collider /*, other stuff*/)
-{
-	setVelocity(-getVelocity());
-}
-
 void SphereRigidBody::draw(ModelRendererPtr modelRenderer, int id) {
 	modelRenderer->queueModelInstance(
 		"sphere",
@@ -41,4 +32,9 @@ void SphereRigidBody::draw(ModelRendererPtr modelRenderer, int id) {
 		true,
 		true
 	);
+}
+
+
+bool SphereRigidBody::isFixed() {
+	return false;
 }

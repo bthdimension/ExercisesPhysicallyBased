@@ -20,6 +20,7 @@ class Solver{
 public:
     Solver();
 
+	void setRididBodyIndices(std::vector<ARigidBodyOctree*> bodies);
 	void createConstraintCheckMatrix(int size);
 	void registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b);
 	void assembleMatrices(std::vector<ARigidBodyOctree*> bodies);

@@ -8,14 +8,13 @@
 class SphereRigidBody : public ARigidBodyOctree {
 
 public:
-
-	SphereRigidBody(ModelPtr model);
 	
-	SphereRigidBody(ModelPtr model, vmml::Vector3f position);
+	SphereRigidBody(ModelPtr model, vmml::Vector3f position, vmml::Vector3f axesRotation);
 
 	void update(const double &deltaTime) override;
-	void handleCollision(ARigidBodyOctree * collider /*, other stuff*/) override;
 	void draw(ModelRendererPtr modelRenderer, int id) override;
+
+	bool isFixed();
 
 private:
 
