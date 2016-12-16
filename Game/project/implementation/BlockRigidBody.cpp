@@ -6,15 +6,15 @@ void BlockRigidBody::update(const double &deltaTime) {
 	// TODO do physics of block here
 
 	//
-    vmml::Vector3f currPos = getPosition();
+    //vmml::Vector3f currPos = getPosition();
     
-    vmml::Vector3f f(0.f,-9.81f, 0.f);
+    //vmml::Vector3f f(0.f,-9.81f, 0.f);
     
     
     //    v2 = ((m - dt * dforcedv) * v2 + dt * (springForce2 + dampingForce2 - m * g)) / (m - dt * dforcedv - dt * dt * dforcedx );
     
     
-    setVelocity(getVelocity() + f * deltaTime);
+    /*setVelocity(getVelocity() + f * deltaTime);
     
     setPosition(getPosition() + getVelocity() * deltaTime);
 
@@ -26,10 +26,9 @@ void BlockRigidBody::update(const double &deltaTime) {
 		currPos = getPosition();
 		currPos.y() = 1.0;
 		setPosition(currPos);
-	}
+	}*/
     
 	updateMatrices();
-
 	registerInOctTree();
 }
 

@@ -1,4 +1,5 @@
 #include "ARigidBodyOctree.h"
+#include "OctTreeNode.h" // mir rede nie wieder über das
 
 
 void ARigidBodyOctree::setOctTree(OctTreeNodePtr octTree) {
@@ -12,4 +13,14 @@ void ARigidBodyOctree::registerInOctTree() {
 		_leavesAtWhichBodyIsRegistered[i]->unregisterRigidBody(this);
 	}
 	_leavesAtWhichBodyIsRegistered = _octTree->registerRigidBody(this);
+}
+
+
+void ARigidBodyOctree::setIndex(int index) {
+	_index = index;
+}
+
+
+int ARigidBodyOctree::getIndex() {
+	return _index;
 }

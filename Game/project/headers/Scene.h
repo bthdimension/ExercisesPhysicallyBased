@@ -2,18 +2,20 @@
 #define SCENE_H
 
 #include "bRenderer.h"
-#include "BlockRigidBody.h"
 #include "InputController.h"
 #include "FreeCamera.h"
-#include "SceneEditor.h"
 #include "Lighting.h"
+#include "BlockRigidBody.h"
 #include "SphereRigidBody.h"
 #include "FloorRigidBody.h"
+#include "SceneEditor.h"
 #include "OctTreeNode.h"
 #include "Solver.h"
 
 class SceneEditor; // forward declaration
 typedef std::shared_ptr< SceneEditor >  SceneEditorPtr; // forward declaration
+class OctTreeNode; // forward declaratio
+typedef std::shared_ptr< OctTreeNode >  OctTreeNodePtr; // forward declaration
 
 
 class Scene {
@@ -28,6 +30,8 @@ public:
 	void loop(const double &deltaTime, bool* running);
 
 	OctTreeNodePtr getOctree() { return _octTree; }
+
+	void registerSolverConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b);
 
 	const int NUM_SPHERES = 1;
 

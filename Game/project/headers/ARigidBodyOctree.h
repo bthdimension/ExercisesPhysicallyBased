@@ -2,19 +2,17 @@
 #define A_RIGID_BODY_H
 
 #include "bRenderer.h"
-#include "OctTreeNode.h"
 #include "headers/IRigidBody.h"
 
-class OctTreeNode; // forward declaration
+class OctTreeNode; // forward declaratio
 typedef std::shared_ptr< OctTreeNode >  OctTreeNodePtr; // forward declaration
-
 
 
 class ARigidBodyOctree : public IRigidBody{
 
 public:
 
-	ARigidBodyOctree(ModelPtr model) : IRigidBody(model) {}
+	ARigidBodyOctree(ModelPtr model) : IRigidBody(model) { _index = 0;  }
 	ARigidBodyOctree(ModelPtr model, vmml::Vector3f position) : IRigidBody(model) { setPosition(position); }
 
 	virtual bool isInAABB(vmml::AABBf aabb) {
@@ -27,6 +25,9 @@ public:
 	void setOctTree(OctTreeNodePtr octTree);
 	void registerInOctTree();
 
+	void setIndex(int index);
+	int getIndex();
+
 	
 
 
@@ -35,6 +36,8 @@ private:
 	OctTreeNodePtr _octTree;
 	std::vector<OctTreeNode*> _leavesAtWhichBodyIsRegistered;
 	std::string _modelName;
+
+	int _index;
 
 };
 

@@ -1,7 +1,9 @@
 #include "OctTreeNode.h"
 
 
-OctTreeNode::OctTreeNode(OctTreeNode* parent, int depth, vmml::AABBf aabb) {
+OctTreeNode::OctTreeNode(Scene* scene, OctTreeNode* parent, int depth, vmml::AABBf aabb) {
+
+	_scene = scene;
 
 	_parent = parent;
 
@@ -23,14 +25,14 @@ OctTreeNode::OctTreeNode(OctTreeNode* parent, int depth, vmml::AABBf aabb) {
 		vmml::Vector3f max = _aabb.getMax();
 
 		_childNodes = new OctTreeNode[8]{
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 min.y(),	 min.z() },	   { center.x(), center.y(), center.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 min.y(),	 center.z() }, { center.x(), center.y(), max.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 center.y(), min.z() },	   { center.x(), max.y(),    center.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ min.x(),	 center.y(), center.z() }, { center.x(), max.y(),    max.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), min.y(),	 min.z() },	   { max.x(),    center.y(), center.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), min.y(),	 center.z() }, { max.x(),    center.y(), max.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), center.y(), min.z() },	   { max.x(),    max.y(),    center.z()})),
-			OctTreeNode(this, (depth - 1), vmml::AABBf({ center.x(), center.y(), center.z() }, { max.x(),    max.y(),    max.z()}))
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ min.x(),	 min.y(),	 min.z() },	   { center.x(), center.y(), center.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ min.x(),	 min.y(),	 center.z() }, { center.x(), center.y(), max.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ min.x(),	 center.y(), min.z() },	   { center.x(), max.y(),    center.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ min.x(),	 center.y(), center.z() }, { center.x(), max.y(),    max.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ center.x(), min.y(),	 min.z() },	   { max.x(),    center.y(), center.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ center.x(), min.y(),	 center.z() }, { max.x(),    center.y(), max.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ center.x(), center.y(), min.z() },	   { max.x(),    max.y(),    center.z()})),
+			OctTreeNode(_scene, this, (depth - 1), vmml::AABBf({ center.x(), center.y(), center.z() }, { max.x(),    max.y(),    max.z()}))
 		};																								
 	}
 }
@@ -111,20 +113,24 @@ bool OctTreeNode::collide() {
 
 		// if leaf collide all objects
 		if (_depth <= 1) {
-			if(_rigidBodies.size() > 1)
-			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size(); i++) {
-				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
-					if (_rigidBodies[i]->doesIntersect(_rigidBodies[j])) {
-						collisionsFound = true;
-						/*if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
+			if(_rigidBodies.size() > 1) {
+				for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size() - 1; i++) {
+					for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
+
+						_scene->registerSolverConstraint(_rigidBodies[i], _rigidBodies[j]);
+
+						/*if (_rigidBodies[i]->doesIntersect(_rigidBodies[j])) {
+							collisionsFound = true;
+							if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
 							bRenderer::log("Collision between two blocks");
-						if (!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && _rigidBodies[j]->getMeshCollider()->isPerfectSphere()
+							if (!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && _rigidBodies[j]->getMeshCollider()->isPerfectSphere()
 							||
 							_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
-							bRenderer::log("Collision between a block and a sphere");*/
+							bRenderer::log("Collision between a block and a sphere");
 
-						_rigidBodies[i]->handleCollision(_rigidBodies[j]);
-						_rigidBodies[j]->handleCollision(_rigidBodies[i]);
+							_rigidBodies[i]->handleCollision(_rigidBodies[j]);
+							_rigidBodies[j]->handleCollision(_rigidBodies[i]);
+						}*/
 					}
 				}
 			}

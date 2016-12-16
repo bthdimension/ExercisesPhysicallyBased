@@ -2,17 +2,20 @@
 #define OCT_TREE_NODE_H
 
 #include "bRenderer.h"
-#include "ARigidBodyOctree.h"
 #include "vmmlib/aabb.hpp"
+#include "ARigidBodyOctree.h"
+#include "Scene.h"
 
-class ARigidBodyOctree; // forward declaration
+class Scene;
+class ARigidBodyOctree;
+
 
 
 class OctTreeNode {
 
 public:
     OctTreeNode(){};
-	OctTreeNode(OctTreeNode* parent, int depth, vmml::AABBf aabb);
+	OctTreeNode(Scene* scene, OctTreeNode* parent, int depth, vmml::AABBf aabb);
 	~OctTreeNode();
 
 	std::vector<OctTreeNode*> registerRigidBody(ARigidBodyOctree* ridigBody);
@@ -24,6 +27,8 @@ public:
 
 
 private:
+
+	Scene* _scene;
 
 	OctTreeNode* _parent;
 

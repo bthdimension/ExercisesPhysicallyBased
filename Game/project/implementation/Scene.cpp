@@ -14,9 +14,10 @@ Scene::Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCamera
 	_rigidBodies = std::vector<ARigidBodyOctree*>();
 
 	_octTree = OctTreeNodePtr(new OctTreeNode(
+		this, //scene
 		0, // make root
 		4, // depth,
-		{{ -25.f, -5.f, -25.f},{25.f, 40.f, 25.f}}
+		{{ -25.f, -5.f, -25.f},{25.f, 40.f, 25.f}} // size of octree
 	));
 
 	_sceneEditor = SceneEditorPtr(new SceneEditor(this, _modelRenderer, inputController, freeCamera));
@@ -52,7 +53,6 @@ void Scene::generateSpheres() {
 
 
 void Scene::loop(const double &deltaTime, bool* running) {
-	_solver->assembleMatrices(_rigidBodies);
 	if (*running) {
 		update(deltaTime);
 	}
@@ -72,10 +72,15 @@ void Scene::update(const double &deltaTime) {
     
     //_sceneEditor->update(deltaTime);
     
+	_solver->createConstraintCheckMatrix((int)_rigidBodies.size());
+	_octTree->collide();
+	_solver->assembleMatrices(_rigidBodies);
+	_solver->solveForLambda((float) deltaTime, 8);
+	_solver->computeNewVelocity((float) deltaTime, _rigidBodies);
+
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
 		_rigidBodies[i]->update(deltaTime);
 	}
-	_octTree->collide();
     
 	
 }
@@ -91,4 +96,9 @@ void Scene::draw() {
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
 		_rigidBodies[i]->draw(_modelRenderer, (int) i);
 	}
+}
+
+
+void Scene::registerSolverConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b) {
+	_solver->registerConstraint(a, b);
 }

@@ -114,7 +114,7 @@ inline IRigidBody::IRigidBody(ModelPtr model) {
     _velocity        = {0.f, 0.f, 0.f};
     _angularVelocity = {0.f, 0.f, 0.f};
     
-    _force  = {0.f, 0.f, 0.f};
+    _force  = {0.f, -m_G * _mass, 0.f};
     _torque = {0.f, 0.f, 0.f};
 
 	_momentsOfInertiaObject = vmml::Matrix3f(); // ONLY FOR BLOCKS UNTIL NOW, TODOD: Cover spheres too
