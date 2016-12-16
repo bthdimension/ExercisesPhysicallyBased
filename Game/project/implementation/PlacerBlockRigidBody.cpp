@@ -15,15 +15,16 @@ void PlacerBlockRigidBody::update(const double &deltaTime)
 	registerInOctTree();
 }
 
-bool PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector)
+bool PlacerBlockRigidBody::handleCollision(ARigidBodyOctree *collider, CollisionInformation *collisionInformation)
 {
 	if (!collider->getMeshCollider()->isPerfectSphere()) {
-		vmml::AABBf aabbThis = getMeshCollider()->getBoundingVolumeWorldSpace();
-		vmml::AABBf aabbCol = collider->getMeshCollider()->getBoundingVolumeWorldSpace();
-		float height = aabbCol.getMax().y() - aabbThis.getMin().y();
-		setPosition(getPosition() + vmml::Vector3f(0.f, height, 0.f));
+		//vmml::AABBf aabbThis = getMeshCollider()->getBoundingVolumeWorldSpace();
+		//vmml::AABBf aabbCol = collider->getMeshCollider()->getBoundingVolumeWorldSpace();
+		//float height = aabbCol.getMax().y() - aabbThis.getMin().y();
+		//setPosition(getPosition() + vmml::Vector3f(0.f, height, 0.f));
 
-		//setPosition(getPosition() + minimumTranslationVector);
+
+		setPosition(getPosition() - collisionInformation->colNormal*collisionInformation->penetratonDepth);
 
 		updateMatrices();		
 		return true;

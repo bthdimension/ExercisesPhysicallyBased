@@ -33,7 +33,7 @@ void BlockRigidBody::update(const double &deltaTime) {
 	registerInOctTree();
 }
 
-bool BlockRigidBody::handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector){
+bool BlockRigidBody::handleCollision(ARigidBodyOctree *collider, CollisionInformation *collisionInformation){
     
     //setVelocity(-getVelocity());
 	return false;

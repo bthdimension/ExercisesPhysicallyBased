@@ -14,7 +14,7 @@ public:
 
 	void update(const double &deltaTime) override;
 
-	bool handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector) override;
+	bool handleCollision(ARigidBodyOctree *collider, CollisionInformation *collisionInformation) override;
 
 	void draw(ModelRendererPtr modelRenderer, int id) override;
 

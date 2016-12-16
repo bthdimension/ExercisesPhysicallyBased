@@ -114,12 +114,12 @@ bool OctTreeNode::collide() {
 			if(_rigidBodies.size() > 1)
 			for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size(); i++) {
 				for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
-					vmml::Vector3f minimumTranslationVector;
+					CollisionInformation collisionInformation;
 					if (_rigidBodies[i] == _rigidBodies[j])
 					{
 						bRenderer::log("Same object stored twice in a node", bRenderer::LM_ERROR);
 					}
-					else if (_rigidBodies[i]->doesIntersect(_rigidBodies[j], &minimumTranslationVector)) {
+					else if (_rigidBodies[i]->doesIntersect(_rigidBodies[j], &collisionInformation)) {
 						collisionsFound = true;
 						/*if(!_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
 							bRenderer::log("Collision between two blocks");
@@ -128,8 +128,9 @@ bool OctTreeNode::collide() {
 							_rigidBodies[i]->getMeshCollider()->isPerfectSphere() && !_rigidBodies[j]->getMeshCollider()->isPerfectSphere())
 							bRenderer::log("Collision between a block and a sphere");*/
 
-						bool iChanged = _rigidBodies[i]->handleCollision(_rigidBodies[j], minimumTranslationVector);
-						if(_rigidBodies[j]->handleCollision(_rigidBodies[i], minimumTranslationVector))
+						bool iChanged = _rigidBodies[i]->handleCollision(_rigidBodies[j], &collisionInformation);
+						collisionInformation.colNormal = -collisionInformation.colNormal; // opposite normal for second collider
+						if(_rigidBodies[j]->handleCollision(_rigidBodies[i], &collisionInformation))
 							_rigidBodies[j]->registerInOctTree();
 						if(iChanged)
 							_rigidBodies[i]->registerInOctTree();

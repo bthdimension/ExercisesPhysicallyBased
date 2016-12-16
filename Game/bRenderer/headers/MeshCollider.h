@@ -1,3 +1,12 @@
+/*
+	Contains GJK EPA algorithm based on Lattice3D
+	https://bitbucket.org/Hacktank/lattice3d/src/adfb28ffe5b5?at=master
+
+	Contains triangle intersection based on Tomas Möller
+	http://fileadmin.cs.lth.se/cs/personal/tomas_akenine-moller/code/
+
+*/
+
 #ifndef B_MESHCOLLIDER_H
 #define B_MESHCOLLIDER_H
 
@@ -7,18 +16,54 @@
 #include "vmmlib/aabb.hpp"
 
 typedef std::vector<vmml::Vector3f>	MeshTriangle;
-typedef std::vector<vmml::Vector3f>	MeshEdge;
 typedef std::vector<vmml::Vector2f>	MeshTriangle2D;
 typedef std::vector<MeshTriangle>	GeometryTriangles;
-typedef std::vector<MeshEdge>	GeometryEdges;
+
+
 class IRigidBody;
+
+static vmml::Vector3f getNormal(const vmml::Vector3f &a, const vmml::Vector3f &b, const vmml::Vector3f &c)
+{
+	vmml::Vector3f n  = ((b - a).cross(c - a));
+	n.normalize();
+	return n;
+}
+
+struct CollisionInformation
+{
+	bool collisionOccured = false;
+	vmml::Vector3f colPoint;
+	vmml::Vector3f colNormal;
+	float penetratonDepth;
+};
 
 struct SupportPoint
 {
 	vmml::Vector3f a;
 	vmml::Vector3f b;
 	vmml::Vector3f diff;
+
+	bool operator==(const SupportPoint &p) const { return diff == p.diff; }
 };
+struct	SupportPointTriangle
+{
+	SupportPoint points[3];
+	vmml::Vector3f normal;
+
+	SupportPointTriangle(const SupportPoint &a, const SupportPoint &b, const SupportPoint &c)
+	{
+		points[0] = a;
+		points[1] = b;
+		points[2] = c;
+		normal = getNormal(a.diff, b.diff, c.diff);
+	}
+
+	SupportPoint at(int i) { return points[i]; }
+	vmml::Vector3f atDiff(int i) { return points[i].diff; }
+};
+typedef std::vector<SupportPointTriangle>	SupportPointTrianglesList;
+typedef std::vector<SupportPoint>	SupportPointEdge;
+typedef std::vector<SupportPointEdge>	SupportPointEdgesList;
 
 /** @brief A mesh collider can be used to detect collisions between meshes.
 *	@author Benjamin Buergisser
@@ -58,9 +103,9 @@ public:
 
 	/**	@brief Intersect this collider with another collider
 	*	@param[in] meshCollider
-	*	@param[in] minimumTranslationVector Will be set by the function if there was an intersection
+	*	@param[in] collisionInformation Will be set by the function if there was an intersection
 	*/
-	bool doesIntersect(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector);
+	bool doesIntersect(MeshCollider *meshCollider, CollisionInformation *collisionInformation);
 
 	/**	@brief Intersect this collider with another collider based on triangle intersection
 	*	@param[in] meshCollider
@@ -74,10 +119,10 @@ public:
 
 	/**	@brief Intersect this collider's bounding volume with a bounding volume
 	*	@param[in] boundingVolumeWorld Bounding volume in world space
-	*	@param[in] minimumTranslationVector Will be set by the function if there was an intersection
+	*	@param[in] collisionInformation Will be set by the function if there was an intersection
 	*	@param[in] isPerfectSphere Decides wether the passed volume is a bounding sphere or box
 	*/
-	bool intersectBoundingVolumes(const vmml::AABBf &boundingVolumeWorld, vmml::Vector3f *minimumTranslationVector, bool isSphere);
+	bool intersectBoundingVolumes(const vmml::AABBf &boundingVolumeWorld, CollisionInformation *collisionInformation, bool isSphere);
 
 	/**	@brief Decides wether only a bounding sphere is used for collisions
 	*/
@@ -101,22 +146,24 @@ public:
 	float getRadiusObjectSpace() { return _radiusObjectSpace; }
 
 	
-	bool GJK(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector);
+	bool GJK(MeshCollider *meshCollider, CollisionInformation *collisionInformation);
 
-	void EPA(MeshCollider *meshCollider, vmml::Vector3f *minimumTranslationVector, std::vector<vmml::Vector3f> &simplex);
+	bool EPA(MeshCollider *meshCollider, CollisionInformation *collisionInformation, std::vector<SupportPoint> &simplex);
 	
 	SupportPoint supportFunction(MeshCollider *meshCollider, const vmml::Vector3f & direction);
 	
 	vmml::Vector3f farthestPointInDirection(const vmml::Vector3f & direction);
 
-	bool checkSimplex(std::vector<vmml::Vector3f> &simplex, vmml::Vector3f & direction);
+	bool checkSimplex(std::vector<SupportPoint> &simplex, vmml::Vector3f & direction);
 
-	void addEdge(GeometryEdges &edges, SupportPoint &a, SupportPoint &b);
+	void addEdge(SupportPointEdgesList &edges, SupportPoint &a, SupportPoint &b);
+
+	bool contactInformation(SupportPointTriangle *triangle, CollisionInformation *collisionInformation);
 
 	// Static Functions
 	static bool doesIntersect(MeshTriangle &triangleWorld1, MeshTriangle &triangleWorld2);
 	static bool intersectBoundingBoxes(const vmml::AABBf &boundingVolume1, const vmml::AABBf &boundingVolume2);
-	static bool intersectBoundingSpheres(const vmml::AABBf &boundingVolume1, const vmml::AABBf &boundingVolume2, vmml::Vector3f *minimumTranslationVector);
+	static bool intersectBoundingSpheres(const vmml::AABBf &boundingVolume1, const vmml::AABBf &boundingVolume2, CollisionInformation *collisionInformation);
 	//static bool intersectBoundingBoxWithSphere(const vmml::AABBf &box, const vmml::AABBf &sphere);
 	//static bool doesIntersectBoundingSphere(const vmml::AABBf &boundingSphere, const MeshTriangle &triangleWorld, bool isPerfectSphere);
 	static float getMaxAbsVectorValue(const vmml::Vector3f &vector);

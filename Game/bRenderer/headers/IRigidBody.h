@@ -26,7 +26,7 @@ public:
     // this function depends on the RB
 	virtual void update(const double &deltaTime) = 0;
     
-    virtual bool doesIntersect(IRigidBody * rigidBody, vmml::Vector3f *minimumTranslationVector);
+    virtual bool doesIntersect(IRigidBody * rigidBody, CollisionInformation *collisionInformation);
 	
     // GET FUNCTIONS
 	vmml::Vector3f getScale();
@@ -126,8 +126,8 @@ inline IRigidBody::IRigidBody(ModelPtr model) {
 }
 
 
-inline bool IRigidBody::doesIntersect(IRigidBody* rigidBody, vmml::Vector3f *minimumTranslationVector) {
-    return _meshCollider->doesIntersect(rigidBody->getMeshCollider().get(), minimumTranslationVector);
+inline bool IRigidBody::doesIntersect(IRigidBody* rigidBody, CollisionInformation *collisionInformation) {
+    return _meshCollider->doesIntersect(rigidBody->getMeshCollider().get(), collisionInformation);
 }
 
 

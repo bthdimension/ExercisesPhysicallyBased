@@ -49,7 +49,7 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 
 
 
-	std::cout << _M << std::endl << std::endl << _v << std::endl << std::endl;
+	//std::cout << _M << std::endl << std::endl << _v << std::endl << std::endl;
 }
 
 

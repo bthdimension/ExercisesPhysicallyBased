@@ -24,7 +24,7 @@ public:
 	virtual void draw(ModelRendererPtr modelRenderer, int id) = 0;
 	
 	// returns true if position was changed
-	virtual bool handleCollision(ARigidBodyOctree *collider, vmml::Vector3f &minimumTranslationVector) { return false; }
+	virtual bool handleCollision(ARigidBodyOctree *collider, CollisionInformation *collisionInformation) { return false; }
 
 	void setOctTree(OctTreeNodePtr octTree);
 	void registerInOctTree();
