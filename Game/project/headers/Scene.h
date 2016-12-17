@@ -31,7 +31,7 @@ public:
 
 	OctTreeNodePtr getOctree() { return _octTree; }
 
-	void registerSolverConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b);
+	void registerSolverConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b, ConstraintInformation info);
 
 	const int NUM_SPHERES = 1;
 

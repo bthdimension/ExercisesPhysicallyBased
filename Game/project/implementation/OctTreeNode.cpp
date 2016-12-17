@@ -116,7 +116,11 @@ void OctTreeNode::collide() {
 			if(_rigidBodies.size() > 1) {
 				for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size() - 1; i++) {
 					for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
-						_scene->registerSolverConstraint(_rigidBodies[i], _rigidBodies[j]);							
+
+						ConstraintInformation info = SupportPointCalculator::getContraintInformation(_rigidBodies[i], _rigidBodies[j]);
+						if (info.penetrationDepth > 0.0) {
+							_scene->registerSolverConstraint(_rigidBodies[i], _rigidBodies[j], info);
+						}				
 					}
 				}
 			}

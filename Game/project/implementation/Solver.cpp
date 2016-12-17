@@ -10,7 +10,7 @@
 
 
 Solver::Solver() {
-	_constraintStack = std::vector<ARigidBodyOctree**>();
+	_constraintStack = std::vector<ConstraintStackElement>();
 	//_lambda = VectorXf::Zero(_s);
 }
 
@@ -27,11 +27,11 @@ void Solver::createConstraintCheckMatrix(int size) {
 }
 
 
-void Solver::registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b) {
+void Solver::registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b, ConstraintInformation info) {
 	int aI = a->getIndex();
 	int bI = b->getIndex();
 	if (_constraintCheckMatrix(aI, bI) == 0) {
-		_constraintStack.push_back(new ARigidBodyOctree*[2]{ a, b });
+		_constraintStack.push_back(ConstraintStackElement { a, b, info });
 		_constraintCheckMatrix(aI, bI) = 1;
 		_constraintCheckMatrix(bI, aI) = 1;
 	}
@@ -67,11 +67,11 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		_M(offset + 1, offset + 1) = m;
 		_M(offset + 2, offset + 2) = m;
 
-		I = mat3fVmmlToEigen(bodies[i]->getMomentsOfInertia());
+		I = Utils::mat3fVmmlToEigen(bodies[i]->getMomentsOfInertia());
 		_M.block<3,3>(offset + 3, offset + 3) = I;
 
-		v = vec3fVmmlToEigen(bodies[i]->getVelocity());
-		omega = vec3fVmmlToEigen(bodies[i]->getAngularVelocity());
+		v = Utils::vec3fVmmlToEigen(bodies[i]->getVelocity());
+		omega = Utils::vec3fVmmlToEigen(bodies[i]->getAngularVelocity());
 
 		_v.segment<3>(offset) = v;
 		_v.segment<3>(offset + 3) = omega;
@@ -79,7 +79,7 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		if (bodies[i]->isFixed()) {
 			_Fext.segment<3>(offset) = Vector3f::Zero();
 		} else {
-			_Fext.segment<3>(offset) = vec3fVmmlToEigen(bodies[i]->getForce());
+			_Fext.segment<3>(offset) = Utils::vec3fVmmlToEigen(bodies[i]->getForce());
 		}
 	}
 
@@ -99,44 +99,28 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 	int body2offset;
 	int row;
 
-	Vector3f delta; // TODO temp
-	Vector3f n;
-	Vector3f r1;
-	Vector3f r2;
+	for (std::vector<ConstraintStackElement>::size_type i = 0; i != _constraintStack.size(); i++) {
 
-	for (std::vector<ARigidBodyOctree**>::size_type i = 0; i != _constraintStack.size(); i++) {
+		body1 = _constraintStack[i].a;
+		body2 = _constraintStack[i].b;
 
-		body1 = *_constraintStack[i];
-		body2 = *(_constraintStack[i] + 1);
 		body1offset = body1->getIndex() * 6;
 		body2offset = body2->getIndex() * 6;
 		row = (int)i;
 
-		//std::cout << "BodyA:" << bodyA->getIndex() << " / BodyB:" << bodyB->getIndex() << std::endl;
-
-		
-		// START TEST SPHERE
-		n = vec3fVmmlToEigen(body2->getPosition() - body1->getPosition());
-		n.normalize();
-
-		r1 = n * 2.0; // TODO this is just sphere with radius 2
-		r2 = n * -2.0; // TODO this is just sphere with radius 2
-		// END TEST SPHERE
-
-		//CollisionInformation collisionInformation;
-		//body1->doesIntersect(body2, &collisionInformation);
+		ConstraintInformation constraintInfo = _constraintStack[i].info;
 
 		if (body1->isFixed()) {
 			_J.block<1, 6>(i, body1offset) = ArrayXXf::Zero(1, 6);
 		} else {
-			_J.block<1, 3>(i, body1offset) = -n.transpose();
-			_J.block<1, 3>(i, body1offset + 3) = -(r1.cross(n).transpose());
+			_J.block<1, 3>(i, body1offset) = -constraintInfo.n.transpose();
+			_J.block<1, 3>(i, body1offset + 3) = -(constraintInfo.rA.cross(constraintInfo.n).transpose());
 		} 
 		if (body2->isFixed()) {
 			_J.block<1, 6>(i, body2offset) = ArrayXXf::Zero(1, 6);
 		} else {
-			_J.block<1, 3>(i, body2offset) = n.transpose();
-			_J.block<1, 3>(i, body2offset + 3) = r2.cross(n).transpose();
+			_J.block<1, 3>(i, body2offset) = constraintInfo.n.transpose();
+			_J.block<1, 3>(i, body2offset + 3) = constraintInfo.rB.cross(constraintInfo.n).transpose();
 		}
 
 		_Jmap(i, 0) = body1->getIndex();
@@ -241,24 +225,4 @@ MatrixXf Solver::Bsp(int i, int j) {
 	//std::cout << "Bsp" << i << "/" << j << " (" << _B << std::endl;
 	//std::cout << "Jmap" << i << "/" << j << " (" << _Jmap << std::endl;
 	return _B.block<6, 1>(_Jmap(i, j) * 6, i);
-}
-
-
-Matrix3f Solver::mat3fVmmlToEigen(vmml::Matrix3f input) {
-	Matrix3f output = Matrix3f();
-	for (int x = 0; x < 3; x++) {
-		for (int y = 0; y < 3; y++) {
-			output(x, y) = input(x, y);
-		}
-	}
-	return output;
-};
-
-
-Vector3f Solver::vec3fVmmlToEigen(vmml::Vector3f input) {
-	Vector3f output = Vector3f();
-	for (int i = 0; i < 3; i++) {
-		output(i) = input(i);
-	}
-	return output;
 }

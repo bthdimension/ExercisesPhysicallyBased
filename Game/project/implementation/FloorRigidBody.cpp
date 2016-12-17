@@ -1,16 +1,20 @@
 #include "FloorRigidBody.h"
 
 
+ARigidBodyOctree::Type FloorRigidBody::getType() {
+	return ARigidBodyOctree::Type::VERTICES;
+}
+
+
 void FloorRigidBody::update(const double &deltaTime) {
 	updateMatrices();
-	registerInOctTree();
 }
 
 
 void FloorRigidBody::draw(ModelRendererPtr modelRenderer, int id) {
 	modelRenderer->queueModelInstance(
-		"sphere", //"base",
-		"sphere_" + std::to_string(id),
+		"base",
+		"base" + std::to_string(id),
 		"camera",
 		getWorldMatrix(),
 		std::vector<std::string>({ "sun", "moon" }),

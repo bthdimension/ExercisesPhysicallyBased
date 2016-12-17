@@ -21,7 +21,7 @@ Scene::Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCamera
 	));
 
 	ModelPtr modelptr = _modelRenderer->getObjectManager()->getModel("base");
-	ARigidBodyOctree* floor = new FloorRigidBody(modelptr, vmml::Vector3f(0.f, 0.0f, 0.0f), vmml::Vector3f(0.f, 0.0f, 0.0f));
+	ARigidBodyOctree* floor = new FloorRigidBody(modelptr, vmml::Vector3f(0.f, 0.0f, -0.0f), vmml::Vector3f(0.f, 0.0f, 0.0f));
 	addRigidBody(floor);
 
 	_sceneEditor = SceneEditorPtr(new SceneEditor(this, _modelRenderer, inputController, freeCamera));
@@ -74,17 +74,17 @@ void Scene::addRigidBody(ARigidBodyOctree* rigidBody) {
 
 void Scene::update(const double &deltaTime) {
     
-    _sceneEditor->update(deltaTime);
+    _sceneEditor->update(deltaTime * 0.5);
     
 	_solver->setRididBodyIndices(_rigidBodies);
 	_solver->createConstraintCheckMatrix((int)_rigidBodies.size());
 	_octTree->collide();
 	_solver->assembleMatrices(_rigidBodies);
-	_solver->solveForLambda((float) deltaTime, 8);
-	_solver->computeNewVelocity((float) deltaTime, _rigidBodies);
+	_solver->solveForLambda((float) deltaTime * 0.5, 20);
+	_solver->computeNewVelocity((float) deltaTime * 0.5, _rigidBodies);
 
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
-		_rigidBodies[i]->update(deltaTime);
+		_rigidBodies[i]->update(deltaTime * 0.5);
 	}
     
 	
@@ -101,6 +101,6 @@ void Scene::draw() {
 }
 
 
-void Scene::registerSolverConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b) {
-	_solver->registerConstraint(a, b);
+void Scene::registerSolverConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b, ConstraintInformation info) {
+	_solver->registerConstraint(a, b, info);
 }

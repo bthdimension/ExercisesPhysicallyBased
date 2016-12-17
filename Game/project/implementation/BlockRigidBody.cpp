@@ -1,17 +1,23 @@
 #include "BlockRigidBody.h"
 
 
+ARigidBodyOctree::Type BlockRigidBody::getType() {
+	return ARigidBodyOctree::Type::VERTICES;
+}
+
 
 void BlockRigidBody::update(const double &deltaTime) {
 	updateMatrices();
-	registerInOctTree();
+	if (getVelocity() * deltaTime > 0) {
+		registerInOctTree();
+	}
 }
 
 
 void BlockRigidBody::draw(ModelRendererPtr modelRenderer, int id) {
 	modelRenderer->queueModelInstance(
-		"sphere", // "block",
-		"sphere" + std::to_string(id),
+		"block",
+		"block" + std::to_string(id),
 		"camera", 
 		getWorldMatrix(),
 		std::vector<std::string>({ "sun", "moon" }),

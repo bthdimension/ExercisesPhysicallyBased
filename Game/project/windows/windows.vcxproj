@@ -239,6 +239,7 @@
     <ClInclude Include="..\headers\SettingsController.h" />
     <ClInclude Include="..\headers\Solver.h" />
     <ClInclude Include="..\headers\SphereRigidBody.h" />
+    <ClInclude Include="..\headers\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\bRenderer\os_specific\ios\BView.mm" />

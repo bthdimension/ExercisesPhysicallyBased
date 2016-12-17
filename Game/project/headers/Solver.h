@@ -11,10 +11,19 @@
 
 #include "bRenderer.h"
 #include "ARigidBodyOctree.h"
+#include "SupportPointCalculator.h"
 #include <Dense>
 
 
 using namespace Eigen;
+
+
+struct ConstraintStackElement {
+	ARigidBodyOctree* a;
+	ARigidBodyOctree* b;
+	ConstraintInformation info;
+};
+
 
 class Solver{
 public:
@@ -22,13 +31,10 @@ public:
 
 	void setRididBodyIndices(std::vector<ARigidBodyOctree*> bodies);
 	void createConstraintCheckMatrix(int size);
-	void registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b);
+	void registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b, ConstraintInformation info);
 	void assembleMatrices(std::vector<ARigidBodyOctree*> bodies);
 	void solveForLambda(float dt, int iterations);
 	void computeNewVelocity(float dt, std::vector<ARigidBodyOctree*> bodies);
-
-	Matrix3f mat3fVmmlToEigen(vmml::Matrix3f input);
-	Vector3f vec3fVmmlToEigen(vmml::Vector3f input);
 
 private :
 
@@ -39,7 +45,7 @@ private :
 private:
 
 	MatrixXi _constraintCheckMatrix;
-	std::vector<ARigidBodyOctree**> _constraintStack;
+	std::vector<ConstraintStackElement> _constraintStack;
 	
 	int _6n; // 6 * num of objects
 	int _s; // num of constraints
