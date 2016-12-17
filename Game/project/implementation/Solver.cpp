@@ -123,6 +123,9 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		r2 = n * -2.0; // TODO this is just sphere with radius 2
 		// END TEST SPHERE
 
+		//CollisionInformation collisionInformation;
+		//body1->doesIntersect(body2, &collisionInformation);
+
 		if (body1->isFixed()) {
 			_J.block<1, 6>(i, body1offset) = ArrayXXf::Zero(1, 6);
 		} else {

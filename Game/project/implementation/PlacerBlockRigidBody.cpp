@@ -23,11 +23,12 @@ void PlacerBlockRigidBody::update(const double &deltaTime)
 		//vmml::AABBf aabbCol = collider->getMeshCollider()->getBoundingVolumeWorldSpace();
 		//float height = aabbCol.getMax().y() - aabbThis.getMin().y();
 		//setPosition(getPosition() + vmml::Vector3f(0.f, height, 0.f));
+		//updateMatrices();		
 
-
-		setPosition(getPosition() - collisionInformation->colNormal*collisionInformation->penetratonDepth);
-
-		updateMatrices();		
+		bRenderer::log("Depth = " + std::to_string(collisionInformation->penetratonDepth) + ",      Normal: (" +
+			std::to_string(collisionInformation->colNormal[0]) + "," + std::to_string(collisionInformation->colNormal[1]) + "," + std::to_string(collisionInformation->colNormal[2]) + ")" +
+			",      Pos: (" +
+			std::to_string(collisionInformation->colPoint[0]) + "," + std::to_string(collisionInformation->colPoint[1]) + "," + std::to_string(collisionInformation->colPoint[2]) + ")");
 		return true;
 	}
 }*/

@@ -106,8 +106,7 @@ void OctTreeNode::unregisterRigidBody(ARigidBodyOctree* rigidBody) {
 }
 
 
-bool OctTreeNode::collide() {
-	bool collisionsFound = false;
+void OctTreeNode::collide() {
 	// only continue colliding down the tree if node has leaves with elements
 	if (_numOfElementsInLeaves > 0) {
 
@@ -117,33 +116,7 @@ bool OctTreeNode::collide() {
 			if(_rigidBodies.size() > 1) {
 				for (std::vector<ARigidBodyOctree*>::size_type i = 0; i < _rigidBodies.size() - 1; i++) {
 					for (std::vector<ARigidBodyOctree*>::size_type j = i + 1; j < _rigidBodies.size(); j++) {
-
-						CollisionInformation collisionInformation;
-
-						_scene->registerSolverConstraint(_rigidBodies[i], _rigidBodies[j]);
-
-						/*if (_rigidBodies[i] == _rigidBodies[j]) {
-							bRenderer::log("Same object stored twice in a node", bRenderer::LM_ERROR);
-
-						} else if (_rigidBodies[i]->doesIntersect(_rigidBodies[j], &collisionInformation)) {
-							collisionsFound = true;
-							
-				
-
-							_rigidBodies[i]->handleCollision(_rigidBodies[j]);
-							_rigidBodies[j]->handleCollision(_rigidBodies[i]);
-						}
-
-						bool iChanged = _rigidBodies[i]->handleCollision(_rigidBodies[j], &collisionInformation);
-						collisionInformation.colNormal = -collisionInformation.colNormal; // opposite normal for second collider
-
-						if (_rigidBodies[j]->handleCollision(_rigidBodies[i], &collisionInformation)) {
-							_rigidBodies[j]->registerInOctTree();
-						}
-							
-						if (iChanged) {
-							_rigidBodies[i]->registerInOctTree();
-						}*/
+						_scene->registerSolverConstraint(_rigidBodies[i], _rigidBodies[j]);							
 					}
 				}
 			}
@@ -152,9 +125,8 @@ bool OctTreeNode::collide() {
 		// if not leaf, get all children to collide
 		else {
 			for (int i = 0; i < 8; i++) {
-				if(_childNodes[i].collide()) collisionsFound = true;
+				_childNodes[i].collide();
 			}
 		}
 	}
-	return collisionsFound;
 }

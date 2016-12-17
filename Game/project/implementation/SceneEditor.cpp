@@ -21,7 +21,7 @@ void SceneEditor::createDebugScene() {
 	for (int i = 1; i < 2; i++) {
 		float j = i * 30.f;
 		ModelPtr modelptr = _modelRenderer->getObjectManager()->getModel("block");
-		vmml::Vector3f pos = vmml::Vector3f(0.5f, j + 1.0f, -0.5f);
+		vmml::Vector3f pos = vmml::Vector3f(0.02f, j + 1.0f, -0.02f);
 		vmml::Vector3f rotAx = vmml::Vector3f(0.f, 0.0f, 0.0f);
 
 		ARigidBodyOctree* rb = new BlockRigidBody(modelptr, pos, rotAx);
