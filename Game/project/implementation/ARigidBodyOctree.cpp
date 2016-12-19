@@ -34,3 +34,27 @@ std::vector<Vector3f> ARigidBodyOctree::getVertices() {
 	}
 	return worldVertices;
 }
+
+
+std::vector<std::vector<Vector3f>> ARigidBodyOctree::getTriangles() {
+	std::vector<std::vector<Vector3f>> worldTriangles = std::vector<std::vector<Vector3f>>();
+	std::vector<std::vector<vmml::Vector3f>> bodyTriangles = getMeshCollider()->getTriangles("default");
+	for (std::vector<std::vector<vmml::Vector3f>>::size_type i = 0; i != bodyTriangles.size(); i++) {
+		std::vector<Vector3f> triangle = std::vector<Vector3f>();
+		for (std::vector<vmml::Vector3f>::size_type j = 0; j != bodyTriangles[i].size(); j++) {
+			triangle.push_back(Utils::vec3fVmmlToEigen(getWorldMatrix() * bodyTriangles[i][j]));
+		}
+		worldTriangles.push_back(triangle);
+	}
+	return worldTriangles;
+}
+
+
+void ARigidBodyOctree::addDebugPoint(vmml::Vector3f point) {
+	_debugPoints.push_back(point);
+}
+
+
+void ARigidBodyOctree::resetDebugPoints() {
+	_debugPoints.clear();
+}

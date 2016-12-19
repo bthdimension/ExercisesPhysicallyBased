@@ -39,6 +39,7 @@ ConstraintInformation SupportPointCalculator::getContraintInformation(ARigidBody
 		std::vector<SimplexP> simplex = std::vector<SimplexP>();
 
 		bool hasPenetration = gjk(midA, midB, verticesA, verticesB, simplex);
+
 		if (hasPenetration) {
 			epa(midA, midB, verticesA, verticesB, simplex, info);
 
@@ -47,9 +48,62 @@ ConstraintInformation SupportPointCalculator::getContraintInformation(ARigidBody
 		}
 		
 
+	} else if ((typeA == ARigidBodyOctree::Type::SPHERE && typeB == ARigidBodyOctree::Type::VERTICES) ||
+		(typeA == ARigidBodyOctree::Type::VERTICES && typeB == ARigidBodyOctree::Type::SPHERE)) {
+
+		bool flip = false;
+		if (typeA == ARigidBodyOctree::Type::VERTICES && typeB == ARigidBodyOctree::Type::SPHERE) {
+			ARigidBodyOctree* temp = a;
+			a = b;
+			b = temp;
+			flip = true;
+		}
+
+		Vector3f sphereMid = Utils::vec3fVmmlToEigen(a->getPosition());
+		std::vector<std::vector<Vector3f>> triangles = b->getTriangles();
+
+		std::vector<Vector3f> closestTriangle;
+		Vector3f closestN;
+		float distance = FLT_MAX;
+
+		findClosestTriangleToSphereMid(sphereMid, triangles, closestTriangle, distance, closestN);
+
+		if (flip) {
+			info.n = -closestN;
+			info.rA = (sphereMid - (info.n * distance)) - Utils::vec3fVmmlToEigen(b->getPosition());
+			info.rB = -info.n * 1.0; // ((SphereRigidBody*)a)->getRadius();
+			info.penetrationDepth = 1.0f - distance; // ((SphereRigidBody*)a)->getRadius();
+		} else {
+			info.n = closestN;
+			info.rA = info.n * 1.0; // ((SphereRigidBody*)a)->getRadius();
+			info.rB = (sphereMid + (info.n * distance)) - Utils::vec3fVmmlToEigen(b->getPosition());
+			info.penetrationDepth = 1.0f - distance; // ((SphereRigidBody*)a)->getRadius();
+		}
+
 	}
+
+	//std::cout << "PENEINFO: depth=" << info.penetrationDepth << "           normal=" << info.n.transpose() << "           rA=" << info.rA.transpose() << "           rB=" << info.rB.transpose() << std::endl;
 	
 	return info;
+}
+
+
+void SupportPointCalculator::findClosestTriangleToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, std::vector<Vector3f> & closestTriangle, float & distance, Vector3f & closestN) {
+	for (std::vector<Triangle>::size_type i = 0; i != triangles.size(); i++) {
+		std::vector<Vector3f> triangle = triangles[i];
+		Vector3f triNormal = ((triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]));
+		triNormal.normalize();
+		float triDist = triNormal.dot(triangle[0] - sphereMid);
+		if (triDist < 0) {
+			triNormal = -triNormal;
+			triDist = -triDist;
+		}
+		if (triDist < distance) {
+			distance = triDist;
+			closestTriangle = triangle;
+			closestN = triNormal;
+		}
+	}
 }
 
 
@@ -74,7 +128,7 @@ Vector3f SupportPointCalculator::getFarthestPointInDirection(const Vector3f & di
 SimplexP SupportPointCalculator::getSupportAminusB(Vector3f & midA, Vector3f & midB, const Vector3f & direction, std::vector<Vector3f> & verticesA, std::vector<Vector3f> & verticesB) {
 	Vector3f supportA = getFarthestPointInDirection(direction, verticesA);
 	Vector3f supportB = getFarthestPointInDirection(-direction, verticesB);
-	return SimplexP { supportA - supportB, supportA - midA, supportB - midB};
+	return SimplexP { supportA - supportB, supportA - midA, supportB - midB, supportA, supportB};
 }
 
 
@@ -101,6 +155,16 @@ bool SupportPointCalculator::gjk(Vector3f & midA, Vector3f & midB, std::vector<V
 bool SupportPointCalculator::containsOrigin(std::vector<SimplexP> & simplex, Vector3f & direction) {
 
 	int size = simplex.size();
+	/*std::cout << "SimplexSize " << size << " Simplex: " << std::endl;
+
+	for (int i = 0; i < size; i++) {
+		std::cout << "   " << simplex.at(i).s.transpose() << "/" << std::endl;
+		std::cout << "      A: " << simplex.at(i).a.transpose() << "/" << std::endl;
+		std::cout << "      B: " << simplex.at(i).b.transpose() << "/" << std::endl;
+		std::cout << "      worldA: " << simplex.at(i).worldA.transpose() << "/" << std::endl;
+		std::cout << "      worldB:" << simplex.at(i).worldB.transpose() << "/" << std::endl;
+	}
+	std::cout << std::endl;*/
 
 	SimplexP a = simplex[size - 1];
 	Vector3f aToOrigin = -a.s;
@@ -144,11 +208,11 @@ bool SupportPointCalculator::containsOrigin(std::vector<SimplexP> & simplex, Vec
 
 		if (abPerp.dot(aToOrigin) > 0) { // origin near ab edge outside triangle 
 			simplex = { b, a };
-			direction = abPerp;
+			direction = tripleProduct(ab, aToOrigin, ab); // abPerp;
 
 		} else if (acPerp.dot(aToOrigin) > 0) { // origin near ac edge outside triangle
 			simplex = { c, a };
-			direction = acPerp;
+			direction = tripleProduct(ac, aToOrigin, ac); // acPerp;
 
 		} else if (ab.cross(ac).dot(aToOrigin) > 0) { // origin above triangle
 			simplex = { c, b, a };
@@ -173,7 +237,7 @@ bool SupportPointCalculator::containsOrigin(std::vector<SimplexP> & simplex, Vec
 
 
 Vector3f SupportPointCalculator::tripleProduct(Vector3f a, Vector3f b, Vector3f c) {
-	return (b * c.dot(a)) - (a * c.dot(b));
+	return (a.cross(b)).cross(c); // (b * c.dot(a)) - (a * c.dot(b));
 }
 
 
@@ -194,6 +258,7 @@ void SupportPointCalculator::epa(Vector3f & midA, Vector3f & midB, std::vector<V
 
 	int n = 0;
 	while (n < MAXITER) {
+		n++;
 
 		distance = FLT_MAX;
 		findClosestTriangle(triangles, closestTriangle, distance, closestN);
@@ -260,6 +325,10 @@ void SupportPointCalculator::produceConstraintInformation(Triangle & triangle, C
 	float w;
 
 	barycentric(collisionPoint, triangle.a.s, triangle.b.s, triangle.c.s, u, v, w);
+
+	std::cout << "   u = " << u << "   v = " << v << "   w = " << w << std::endl;
+	std::cout << "Triangle A:      a = " << triangle.a.a.transpose() << "      b = " << triangle.b.a.transpose() << "      c = " << triangle.c.a.transpose() << std::endl;
+	std::cout << "Triangle B:      a = " << triangle.a.b.transpose() << "      b = " << triangle.b.b.transpose() << "      c = " << triangle.c.b.transpose() << std::endl;
 
 	info.rA = triangle.a.a * u + triangle.b.a * v + triangle.c.a * w;
 	info.rB = triangle.a.b * u + triangle.b.b * v + triangle.c.b * w;	

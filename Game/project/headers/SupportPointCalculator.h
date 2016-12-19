@@ -14,6 +14,8 @@ struct SimplexP {
 	Vector3f s;
 	Vector3f a;
 	Vector3f b;
+	Vector3f worldA;
+	Vector3f worldB;
 };
 
 
@@ -50,6 +52,8 @@ class SupportPointCalculator {
 public:
 
 	static ConstraintInformation getContraintInformation(ARigidBodyOctree* a, ARigidBodyOctree* b);
+
+	static void findClosestTriangleToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, std::vector<Vector3f> & closestTriangle, float & distance, Vector3f & closestN);
 
 	static Vector3f getFarthestPointInDirection(const Vector3f & direction, std::vector<Vector3f> & points);
 	static SimplexP getSupportAminusB(Vector3f & midA, Vector3f & midB, const Vector3f & direction, std::vector<Vector3f> & verticesA, std::vector<Vector3f> & verticesB);

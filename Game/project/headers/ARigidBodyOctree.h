@@ -20,6 +20,7 @@ public:
 	ARigidBodyOctree(ModelPtr model, vmml::Vector3f position, vmml::Vector3f axesRotation) : IRigidBody(model) {
 		setPosition(position);
 		setAxesRotation(axesRotation);
+		_debugPoints = std::vector<vmml::Vector3f>();
 	}
 
 	virtual bool isInAABB(vmml::AABBf aabb) {
@@ -37,10 +38,12 @@ public:
 	int getIndex();
 
 	std::vector<Vector3f> getVertices();
+	std::vector<std::vector<Vector3f>> getTriangles();
 
 	virtual bool isFixed() = 0;
 
-	
+	void addDebugPoint(vmml::Vector3f point);
+	void resetDebugPoints();
 
 
 private:
@@ -48,6 +51,8 @@ private:
 	OctTreeNodePtr _octTree;
 	std::vector<OctTreeNode*> _leavesAtWhichBodyIsRegistered;
 	std::string _modelName;
+
+	std::vector<vmml::Vector3f> _debugPoints;
 
 	int _index;
 

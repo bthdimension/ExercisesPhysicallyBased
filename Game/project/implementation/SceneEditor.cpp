@@ -18,14 +18,16 @@ SceneEditor::SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputCont
 
 
 void SceneEditor::createDebugScene() {
-	for (int i = 1; i < 2; i++) {
-		float j = i * 10.f;
+	for (int i = 1; i < 20; i++) {
+		float j = i * 5.f;
 		ModelPtr modelptr = _modelRenderer->getObjectManager()->getModel("block");
-		vmml::Vector3f pos = vmml::Vector3f(-20.02f + (float) (i % 2), j + 1.0f, -20.02f);
+		vmml::Vector3f pos = vmml::Vector3f(0.0f + ((float) (i % 2) * 5.0) + ((float)(i % 4) * 0.5), j + 1.0f, 0.0f);
 		vmml::Vector3f rotAx = vmml::Vector3f(0.f, 0.0f, 0.0f);
 
-		ARigidBodyOctree* rb = new BlockRigidBody(modelptr, pos, rotAx);
-		rb->setAxesRotation(vmml::Vector3f(0.2, 0.3, 0.1));
+		//ARigidBodyOctree* rb = new BlockRigidBody(modelptr, pos, rotAx);
+		//rb->setAxesRotation(vmml::Vector3f(0.2, 0.3, 0.1));
+
+		ARigidBodyOctree* rb = new SphereRigidBody(modelptr, pos, rotAx);
 		_scene->addRigidBody(rb);
 	}
 };

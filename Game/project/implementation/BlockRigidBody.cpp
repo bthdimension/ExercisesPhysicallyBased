@@ -11,6 +11,7 @@ void BlockRigidBody::update(const double &deltaTime) {
 	if (getVelocity() * deltaTime > 0) {
 		registerInOctTree();
 	}
+	resetDebugPoints();
 }
 
 
