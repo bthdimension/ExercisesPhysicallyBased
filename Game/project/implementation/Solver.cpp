@@ -19,6 +19,7 @@ Solver::Solver() {
 void Solver::setRididBodyIndices(std::vector<ARigidBodyOctree*> bodies) {
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != bodies.size(); i++) {
 		bodies[i]->setIndex((int)i);
+		bodies[i]->resetDebugPoints();
 	}
 }
 
@@ -42,7 +43,7 @@ void Solver::registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b, Constr
 void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 
 	_6n = (int) bodies.size() * 6;
-	_s = _constraintStack.size();
+	_s = _constraintStack.size() * 3;
 
 
 	// Mass, veloctiy and external force matrices
@@ -117,27 +118,52 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 
 		ConstraintInformation constraintInfo = _constraintStack[i].info;
 
-		if (body1->isFixed()) {
-			_J.block<1, 6>(i, body1offset) = ArrayXXf::Zero(1, 6);
+		body1->addDebugPoint(body1->getPosition() + vmml::Vector3f(constraintInfo.rA(0), constraintInfo.rA(1), constraintInfo.rA(2)));
+		body2->addDebugPoint(body2->getPosition() + vmml::Vector3f(constraintInfo.rB(0), constraintInfo.rB(1), constraintInfo.rB(2)));
+
+		Vector3f frictionU1;
+		if (constraintInfo.n(0) == 0 && constraintInfo.n(1) == 0) {
+			frictionU1 = Vector3f(1.0, 0.0, 0.0);
 		} else {
-			_J.block<1, 3>(i, body1offset) = -constraintInfo.n.transpose();
-			_J.block<1, 3>(i, body1offset + 3) = -(constraintInfo.rA.cross(constraintInfo.n).transpose());
+			frictionU1 = Vector3f(-constraintInfo.n(1), constraintInfo.n(0), constraintInfo.n(2));
+		}
+		Vector3f frictionU2 = constraintInfo.n.cross(frictionU1);
+
+		if (body1->isFixed()) {
+			_J.block<3, 6>(i * 3, body1offset) = ArrayXXf::Zero(3, 6);
+		} else {
+			_J.block<1, 3>(i * 3, body1offset) = -constraintInfo.n.transpose();
+			_J.block<1, 3>(i * 3, body1offset + 3) = -(constraintInfo.rA.cross(constraintInfo.n).transpose());
+			_J.block<1, 3>((i * 3) + 1, body1offset) = -frictionU1.transpose();
+			_J.block<1, 3>((i * 3) + 1, body1offset + 3) = -(constraintInfo.rA.cross(frictionU1).transpose());
+			_J.block<1, 3>((i * 3) + 2, body1offset) = -frictionU2.transpose();
+			_J.block<1, 3>((i * 3) + 2, body1offset + 3) = -(constraintInfo.rA.cross(frictionU2).transpose());
 		} 
 		if (body2->isFixed()) {
-			_J.block<1, 6>(i, body2offset) = ArrayXXf::Zero(1, 6);
+			_J.block<3, 6>(i * 3, body2offset) = ArrayXXf::Zero(3, 6);
 		} else {
-			_J.block<1, 3>(i, body2offset) = constraintInfo.n.transpose();
-			_J.block<1, 3>(i, body2offset + 3) = constraintInfo.rB.cross(constraintInfo.n).transpose();
+			_J.block<1, 3>(i * 3, body2offset) = constraintInfo.n.transpose();
+			_J.block<1, 3>(i * 3, body2offset + 3) = constraintInfo.rB.cross(constraintInfo.n).transpose();
+			_J.block<1, 3>((i * 3) + 1, body2offset) = frictionU1.transpose();
+			_J.block<1, 3>((i * 3) + 1, body2offset + 3) = (constraintInfo.rB.cross(frictionU1).transpose());
+			_J.block<1, 3>((i * 3) + 2, body2offset) = frictionU2.transpose();
+			_J.block<1, 3>((i * 3) + 2, body2offset + 3) = (constraintInfo.rB.cross(frictionU2).transpose());
 		}
 
-		_Jmap(i, 0) = body1->getIndex();
-		_Jmap(i, 1) = body2->getIndex();
+		_Jmap(i * 3, 0) = body1->getIndex();
+		_Jmap((i * 3) + 1, 0) = body1->getIndex();
+		_Jmap((i * 3) + 2, 0) = body1->getIndex();
+		_Jmap(i * 3, 1) = body2->getIndex();
+		_Jmap((i * 3) + 1, 1) = body2->getIndex();
+		_Jmap((i * 3) + 2, 1) = body2->getIndex();
         
-        _bias(i) = (Utils::vec3fVmmlToEigen(body2->getPosition()) + constraintInfo.rB - Utils::vec3fVmmlToEigen(body1->getPosition()) - constraintInfo.rA).dot( constraintInfo.n );
-        _bias(i) += alpha * (Utils::vec3fVmmlToEigen(body2->getVelocity()) +
+        _bias(i * 3) = (Utils::vec3fVmmlToEigen(body2->getPosition()) + constraintInfo.rB - Utils::vec3fVmmlToEigen(body1->getPosition()) - constraintInfo.rA).dot( constraintInfo.n );
+        /*_bias(i * 3) += 0.0 * (Utils::vec3fVmmlToEigen(body2->getVelocity()) +
                            Utils::vec3fVmmlToEigen(body2->getAngularVelocity()).cross(constraintInfo.rB) -
                            Utils::vec3fVmmlToEigen(body1->getVelocity()) -
-                           Utils::vec3fVmmlToEigen(body1->getAngularVelocity()).cross(constraintInfo.rA)).dot( constraintInfo.n );
+                           Utils::vec3fVmmlToEigen(body1->getAngularVelocity()).cross(constraintInfo.rA)).dot( constraintInfo.n );*/
+		_bias((i * 3) + 1) = 0.0;
+		_bias((i * 3) + 2) = 0.0;
         
 	}
 	_constraintStack.clear();
@@ -174,15 +200,17 @@ void Solver::solveForLambda(float dt, int iterations) {
 	VectorXf lambdaMax = VectorXf(_s);
 
 	for (int i = 0; i < _s; i++) {
-		d(i) = (Jsp(i, 0) * Bsp(i, 0) +
-			Jsp(i, 1) * Bsp(i, 1))
-			(0); // get float
-
-		lambdaMin(i) = 0.0f;
-		lambdaMax(i) = 9999.9f; // TODO: what is best upper bound
+		d(i) = (Jsp(i, 0) * Bsp(i, 0) + Jsp(i, 1) * Bsp(i, 1))(0); // get float
+		if (i % 3 == 0) {
+			lambdaMin(i) = 0.0f;
+			lambdaMax(i) = 9999.9f; // TODO: what is best upper bound
+		} else {
+			lambdaMin(i) = -0.5f * m_G;
+			lambdaMax(i) = 0.5f * m_G; // TODO: what is best upper bound
+		}
 	}
 
-    float beta = 0.7f / dt;
+    float beta = 0.2f / dt;
     
 	VectorXf eta = - beta * _bias / dt  -_J * (((1 / dt) * _v) + (_Minv * _Fext));
 

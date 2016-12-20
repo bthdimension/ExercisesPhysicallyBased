@@ -29,8 +29,6 @@ Scene::Scene(Renderer* bRenderer, InputControllerPtr inputController, FreeCamera
 
 	_solver = SolverPtr(new Solver());
 
-	//addRigidBody(new FloorRigidBody(_modelRenderer->getObjectManager()->getModel("base")));
-
 	//generateSpheres();
 }
 
@@ -73,18 +71,20 @@ void Scene::addRigidBody(ARigidBodyOctree* rigidBody) {
 
 
 void Scene::update(const double &deltaTime) {
+
+	float slowMotion = 0.2f; // 1.0 = normal speed
     
-    _sceneEditor->update(deltaTime * 0.5);
+    _sceneEditor->update(deltaTime * slowMotion);
     
 	_solver->setRididBodyIndices(_rigidBodies);
 	_solver->createConstraintCheckMatrix((int)_rigidBodies.size());
 	_octTree->collide();
 	_solver->assembleMatrices(_rigidBodies);
-	_solver->solveForLambda((float) deltaTime * 0.5, 8);
-	_solver->computeNewVelocity((float) deltaTime * 0.5, _rigidBodies);
+	_solver->solveForLambda((float) deltaTime * slowMotion, 8);
+	_solver->computeNewVelocity((float) deltaTime * slowMotion, _rigidBodies);
 
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {
-		_rigidBodies[i]->update(deltaTime * 0.5);
+		_rigidBodies[i]->update(deltaTime * slowMotion);
 	}
     
 	

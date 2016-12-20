@@ -70,3 +70,8 @@ void ARigidBodyOctree::resetDebugPoints() {
 	_debugPoints.clear();
 }
 
+
+std::vector<vmml::Vector3f> ARigidBodyOctree::getDebugPoints() {
+	return _debugPoints;
+}
+

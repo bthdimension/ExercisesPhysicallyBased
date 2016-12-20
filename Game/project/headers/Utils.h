@@ -2,7 +2,7 @@
 #define UTILS_H
 
 #include "bRenderer.h"
-#include <eigen3/Eigen/Dense>
+#include <Dense>
 
 
 using namespace Eigen;
