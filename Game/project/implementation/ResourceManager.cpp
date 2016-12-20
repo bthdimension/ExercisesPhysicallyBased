@@ -16,4 +16,7 @@ void ResourceManager::loadResources() {
 
 	// Load Base
 	_bRenderer->getObjects()->loadObjModel("base.obj", false, false, false, 2, true, true);
+
+	// Load Debug
+	_bRenderer->getObjects()->loadObjModel("debug.obj", false, true, false, 2, true, true);
 }

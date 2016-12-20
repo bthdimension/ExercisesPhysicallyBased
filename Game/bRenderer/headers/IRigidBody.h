@@ -54,6 +54,8 @@ public:
     // SET FUNCTIONS
 	void setScale(vmml::Vector3f scale);
 
+	void setMomentsOfIntertia(vmml::Matrix3f momentsOfIntertia);
+
     void setPosition(vmml::Vector3f position);
 	void setAxesRotation(vmml::Vector3f axesRotation);
 
@@ -117,7 +119,7 @@ inline IRigidBody::IRigidBody(ModelPtr model) {
     _force  = {0.f, -m_G * _mass, 0.f};
     _torque = {0.f, 0.f, 0.f};
 
-	_momentsOfInertiaObject = vmml::Matrix3f(); // ONLY FOR BLOCKS UNTIL NOW, TODOD: Cover spheres too
+	_momentsOfInertiaObject = vmml::Matrix3f(); // Standards is for block, sphere set seperately
 	for (int i = 0; i < 2; i++) {
 		_momentsOfInertiaObject(i, i) = _mass * 8.0f / 12.0f; // (m/12) * 2 * s^2
 	}
@@ -135,6 +137,11 @@ inline bool IRigidBody::doesIntersect(IRigidBody* rigidBody, CollisionInformatio
 
 inline void IRigidBody::setScale(vmml::Vector3f scale) {
 	_scale = scale;
+}
+
+
+inline void IRigidBody::setMomentsOfIntertia(vmml::Matrix3f momentsOfIntertia) {
+	_momentsOfInertiaObject = momentsOfIntertia;
 }
 
 

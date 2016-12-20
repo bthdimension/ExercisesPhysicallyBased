@@ -5,7 +5,7 @@
 #include "SphereRigidBody.h"
 #include "ARigidBodyOctree.h"
 #include "Utils.h"
-#include <eigen3/Eigen/Dense>
+#include <Dense>
 
 using namespace Eigen;
 
@@ -62,7 +62,10 @@ public:
 
 	static ConstraintInformation getContraintInformation(ARigidBodyOctree* a, ARigidBodyOctree* b);
 
-	static void findClosestTriangleToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, std::vector<Vector3f> & closestTriangle, float & distance, Vector3f & closestN);
+	static bool findClosestTriangleToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, float & distance, Vector3f & closestN);
+	static bool isPointInTriangle(Vector3f & point, std::vector<Vector3f> & triangle);
+	static void findClosestEdgeToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, float & distance, Vector3f & closestN);
+	static void findClosestVertexToSphereMid(Vector3f & sphereMid, std::vector<Vector3f> & vertices, float & distance, Vector3f & closestN);
 
 	static Vector3f getFarthestPointInDirection(const Vector3f & direction, std::vector<Vector3f> & points);
 	static SimplexP getSupportAminusB(Vector3f & midA, Vector3f & midB, const Vector3f & direction, std::vector<Vector3f> & verticesA, std::vector<Vector3f> & verticesB);

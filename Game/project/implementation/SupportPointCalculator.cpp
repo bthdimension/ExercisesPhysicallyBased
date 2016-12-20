@@ -59,8 +59,8 @@ ConstraintInformation SupportPointCalculator::getContraintInformation(ARigidBody
 		info.n = posB - posA;
 		info.n.normalize();
 
-		info.rA = info.n * 1.0; // ((SphereRigidBody*)a)->getRadius();
-		info.rB = -info.n * 1.0; // ((SphereRigidBody*)b)->getRadius();
+		info.rA = info.n * ((SphereRigidBody*)a)->getRadius();
+		info.rB = -info.n * ((SphereRigidBody*)b)->getRadius();
 
 		Vector3f rAtoRB = (posB + info.rB) - (posA + info.rA);
 
@@ -112,23 +112,27 @@ ConstraintInformation SupportPointCalculator::getContraintInformation(ARigidBody
 
 		Vector3f sphereMid = Utils::vec3fVmmlToEigen(a->getPosition());
 		std::vector<std::vector<Vector3f>> triangles = b->getTriangles();
+		std::vector<Vector3f> vertices = b->getWorldVertices();
 
-		std::vector<Vector3f> closestTriangle;
 		Vector3f closestN;
 		float distance = FLT_MAX;
 
-		findClosestTriangleToSphereMid(sphereMid, triangles, closestTriangle, distance, closestN);
+		bool gotTriangle = findClosestTriangleToSphereMid(sphereMid, triangles, distance, closestN);
+		if (!gotTriangle) {
+			findClosestEdgeToSphereMid(sphereMid, triangles, distance, closestN);
+			findClosestVertexToSphereMid(sphereMid, vertices, distance, closestN);
+		}
 
 		if (flip) {
 			info.n = -closestN;
 			info.rA = (sphereMid - (info.n * distance)) - Utils::vec3fVmmlToEigen(b->getPosition());
-			info.rB = -info.n * 1.0; // ((SphereRigidBody*)a)->getRadius();
-			info.penetrationDepth = 1.0f - distance; // ((SphereRigidBody*)a)->getRadius();
+			info.rB = -info.n * ((SphereRigidBody*)a)->getRadius();
+			info.penetrationDepth = ((SphereRigidBody*)a)->getRadius() - distance;
 		} else {
 			info.n = closestN;
-			info.rA = info.n * 1.0; // ((SphereRigidBody*)a)->getRadius();
+			info.rA = info.n * ((SphereRigidBody*)a)->getRadius();
 			info.rB = (sphereMid + (info.n * distance)) - Utils::vec3fVmmlToEigen(b->getPosition());
-			info.penetrationDepth = 1.0f - distance; // ((SphereRigidBody*)a)->getRadius();
+			info.penetrationDepth = ((SphereRigidBody*)a)->getRadius() - distance;
 		}
 
 	}
@@ -139,20 +143,79 @@ ConstraintInformation SupportPointCalculator::getContraintInformation(ARigidBody
 }
 
 
-void SupportPointCalculator::findClosestTriangleToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, std::vector<Vector3f> & closestTriangle, float & distance, Vector3f & closestN) {
-	for (std::vector<Triangle>::size_type i = 0; i != triangles.size(); i++) {
+bool SupportPointCalculator::findClosestTriangleToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, float & distance, Vector3f & closestN) {
+	bool foundTriangle = false;
+	for (std::vector<std::vector<Vector3f>>::size_type i = 0; i != triangles.size(); i++) {
 		std::vector<Vector3f> triangle = triangles[i];
-		Vector3f triNormal = ((triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]));
-		triNormal.normalize();
-		float triDist = triNormal.dot(triangle[0] - sphereMid);
-		if (triDist < 0) {
-			triNormal = -triNormal;
-			triDist = -triDist;
+		if (isPointInTriangle(sphereMid, triangle)) {
+			Vector3f triNormal = ((triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]));
+			triNormal.normalize();
+			float triDist = triNormal.dot(triangle[0] - sphereMid);
+			if (triDist < 0) {
+				triNormal = -triNormal;
+				triDist = -triDist;
+			}
+			if (triDist < distance) {
+				distance = triDist;
+				closestN = triNormal;
+				foundTriangle = true;
+			}
 		}
-		if (triDist < distance) {
-			distance = triDist;
-			closestTriangle = triangle;
-			closestN = triNormal;
+	}
+	return foundTriangle;
+}
+
+
+bool SupportPointCalculator::isPointInTriangle(Vector3f & point, std::vector<Vector3f> & triangle) {
+	Vector3f a = triangle[0];
+	Vector3f b = triangle[1];
+	Vector3f c = triangle[2];
+
+	Vector3f ab = b - a;
+	Vector3f bc = c - b;
+	Vector3f ca = a - c;
+
+	Vector3f abPerp = tripleProduct(ca, ab, ab);
+	Vector3f bcPerp = tripleProduct(ab, bc, bc);
+	Vector3f caPerp = tripleProduct(bc, ca, ca);
+
+	return abPerp.dot(point - a) >= 0 && caPerp.dot(point - a) >= 0 && bcPerp.dot(point - b) >= 0;
+}
+
+
+void SupportPointCalculator::findClosestEdgeToSphereMid(Vector3f & sphereMid, std::vector<std::vector<Vector3f>> & triangles, float & distance, Vector3f & closestN) {
+	for (std::vector<std::vector<Vector3f>>::size_type i = 0; i != triangles.size(); i++) {
+		std::vector<Vector3f> triangle = triangles[i];
+		for (std::vector<Vector3f>::size_type j = 0; j != triangle.size(); j++) {
+			Vector3f edgeStart = triangle[j];
+			Vector3f edge = triangle[(j + 1) % 3] - edgeStart;
+			float edgeLen = edge.norm();
+			edge.normalize();
+			Vector3f edgeStartToMid = sphereMid - edgeStart;
+			float proj = edge.dot(edgeStartToMid) / edgeLen;
+			if (proj >= 0.0f && proj <= 1.0f) {
+				Vector3f normal = tripleProduct(edge, edgeStartToMid, edge);
+				normal.normalize();
+				float midDist = edgeStartToMid.dot(normal);
+				if (midDist < distance) {
+					distance = midDist;
+					closestN = normal;
+				}
+			}
+		}
+	}
+}
+
+
+void SupportPointCalculator::findClosestVertexToSphereMid(Vector3f & sphereMid, std::vector<Vector3f> & vertices, float & distance, Vector3f & closestN) {
+	for (std::vector<Vector3f>::size_type i = 0; i != vertices.size(); i++) {
+		Vector3f vertex = vertices[i];
+		Vector3f vertexToMid = sphereMid - vertex;
+		float midDist = vertexToMid.norm();
+		vertexToMid.normalize();
+		if (midDist < distance) {
+			distance = midDist;
+			closestN = -vertexToMid;
 		}
 	}
 }

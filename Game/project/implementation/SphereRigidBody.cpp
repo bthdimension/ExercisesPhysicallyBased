@@ -7,6 +7,12 @@ ARigidBodyOctree::Type SphereRigidBody::getType() {
 
 
 SphereRigidBody::SphereRigidBody(ModelPtr model, vmml::Vector3f position, vmml::Vector3f axesRotation) : ARigidBodyOctree(model, position, axesRotation) {
+	vmml::Matrix3f momentsOfInertiaObject = vmml::Matrix3f();
+	float r = getRadius();
+	for (int i = 0; i < 2; i++) {
+		momentsOfInertiaObject(i, i) = 0.4 * getMass() * r * r;
+	}
+	setMomentsOfIntertia(momentsOfInertiaObject);
 	getMeshCollider()->setIsPerfectSphere(true);
 }
 

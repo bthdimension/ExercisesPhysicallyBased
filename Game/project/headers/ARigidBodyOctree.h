@@ -3,7 +3,7 @@
 
 #include "bRenderer.h"
 #include "headers/IRigidBody.h"
-#include <eigen3/Eigen/Dense>
+#include <Dense>
 
 class OctTreeNode; // forward declaratio
 typedef std::shared_ptr< OctTreeNode >  OctTreeNodePtr; // forward declaration
@@ -48,7 +48,7 @@ public:
 
 	void addDebugPoint(vmml::Vector3f point);
 	void resetDebugPoints();
-
+	std::vector<vmml::Vector3f> getDebugPoints();
 
 private:
 

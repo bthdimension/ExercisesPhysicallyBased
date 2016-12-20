@@ -12,7 +12,7 @@
 #include "bRenderer.h"
 #include "ARigidBodyOctree.h"
 #include "SupportPointCalculator.h"
-#include <eigen3/Eigen/Dense>
+#include <Dense>
 
 
 using namespace Eigen;
