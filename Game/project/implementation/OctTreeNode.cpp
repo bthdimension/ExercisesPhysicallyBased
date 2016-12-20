@@ -120,7 +120,9 @@ void OctTreeNode::collide() {
 						ConstraintInformation info = SupportPointCalculator::getContraintInformation(_rigidBodies[i], _rigidBodies[j]);
 						if (info.penetrationDepth > 0.0) {
 							_scene->registerSolverConstraint(_rigidBodies[i], _rigidBodies[j], info);
-						}				
+                        } else {
+//                            std::cout << "no collision" << std::endl;
+                        }
 					}
 				}
 			}

@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "headers/ModelData.h"
 #include "vmmlib/aabb.hpp"
+#include <float.h>
 
 typedef std::vector<vmml::Vector3f>	MeshTriangle;
 typedef std::vector<vmml::Vector2f>	MeshTriangle2D;

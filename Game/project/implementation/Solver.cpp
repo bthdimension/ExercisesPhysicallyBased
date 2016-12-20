@@ -7,6 +7,7 @@
 //
 
 #include "Solver.h"
+//#include "Utils.h"
 
 
 Solver::Solver() {
@@ -49,6 +50,9 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 	_M = ArrayXXf::Zero(_6n, _6n);
 	_v = ArrayXf::Zero(_6n);
 	_Fext = ArrayXf::Zero(_6n);
+    
+    _bias = VectorXf::Ones(_s);
+    _zeta = VectorXf::Zero(_s);
 
 	int offset;
 
@@ -81,6 +85,7 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		} else {
 			_Fext.segment<3>(offset) = Utils::vec3fVmmlToEigen(bodies[i]->getForce());
 		}
+
 	}
 
 	//std::cout << _M << std::endl << std::endl << _v << std::endl << std::endl;
@@ -98,6 +103,8 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 	int body1offset;
 	int body2offset;
 	int row;
+    
+    float alpha = 0.0f;
 
 	for (std::vector<ConstraintStackElement>::size_type i = 0; i != _constraintStack.size(); i++) {
 
@@ -125,14 +132,21 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 
 		_Jmap(i, 0) = body1->getIndex();
 		_Jmap(i, 1) = body2->getIndex();
-
+        
+        _bias(i) = (Utils::vec3fVmmlToEigen(body2->getPosition()) + constraintInfo.rB - Utils::vec3fVmmlToEigen(body1->getPosition()) - constraintInfo.rA).dot( constraintInfo.n );
+        _bias(i) += alpha * (Utils::vec3fVmmlToEigen(body2->getVelocity()) +
+                           Utils::vec3fVmmlToEigen(body2->getAngularVelocity()).cross(constraintInfo.rB) -
+                           Utils::vec3fVmmlToEigen(body1->getVelocity()) -
+                           Utils::vec3fVmmlToEigen(body1->getAngularVelocity()).cross(constraintInfo.rA)).dot( constraintInfo.n );
+        
 	}
 	_constraintStack.clear();
 
 	_Minv = _M.inverse();
 	_Jtrans = _J.transpose();
 	_B = _Minv * _Jtrans;
-
+    
+    
 	//std::cout << _J << std::endl << std::endl;
 }
 
@@ -141,14 +155,18 @@ void Solver::solveForLambda(float dt, int iterations) {
 
 	// We set lambda0 to zero, maybe consider warm starting
 	VectorXf lambda0 = VectorXf::Zero(_s); // save lambda from last step in lambda0
-
+    
+//    if(dt > 1.){
+//        lambda0 = _lambda;
+//    }
+    
 	//std::cout << "B = " << std::endl << _B << std::endl << std::endl;
 	//std::cout << "lamdba0 = " << std::endl << lambda0 << std::endl << std::endl;
 
-
+    _zeta = _J * _v;
 
 	_lambda = lambda0;
-	VectorXf a = _B * lambda0;
+	VectorXf a = _B * _lambda;
 
 
 	VectorXf d = VectorXf(_s); // J * B
@@ -164,7 +182,9 @@ void Solver::solveForLambda(float dt, int iterations) {
 		lambdaMax(i) = 9999.9f; // TODO: what is best upper bound
 	}
 
-	VectorXf eta = -_J * (((1 / dt) * _v) + (_Minv * _Fext));
+    float beta = 0.7f / dt;
+    
+	VectorXf eta = - beta * _bias / dt  -_J * (((1 / dt) * _v) + (_Minv * _Fext));
 
 
 	for (int iter = 0; iter < iterations; iter++) {
@@ -192,12 +212,14 @@ void Solver::solveForLambda(float dt, int iterations) {
 
 void Solver::computeNewVelocity(float dt, std::vector<ARigidBodyOctree*> bodies) {
 	//VectorXf v2 = _v + (dt * _Minv * _Fext);
-	VectorXf v2 = _v + (dt * _Minv * ((_Jtrans * _lambda) + _Fext));
+	_v2 = _v + (dt * _Minv * ((_Jtrans * _lambda) + _Fext));
 	//std::cout << "_Minv = " << std::endl << _Minv << std::endl << std::endl;
 	//std::cout << "_Jtrans = " << std::endl << _Jtrans << std::endl << std::endl;
 	//std::cout << "_lamdba = " << std::endl << _lambda << std::endl << std::endl;
 	//std::cout << "_Fext = " << std::endl << _Fext << std::endl << std::endl;
+    
 
+    
 	int index;
 	int offset;
 
@@ -206,11 +228,19 @@ void Solver::computeNewVelocity(float dt, std::vector<ARigidBodyOctree*> bodies)
 		index = bodies[i]->getIndex();
 		offset = index * 6;
 
-		vmml::Vector3f vel = vmml::Vector3f(v2(offset), v2(offset + 1), v2(offset + 2));
+		vmml::Vector3f vel = vmml::Vector3f(_v2(offset), _v2(offset + 1), _v2(offset + 2));
 		vmml::Vector3f pos = bodies[i]->getPosition();
 		pos += vel * dt;
+        
+        vmml::Vector3f angularvel = vmml::Vector3f(_v2(offset + 3), _v2(offset + 4), _v2(offset + 5));
+        vmml::Vector3f angles = bodies[i]->getAxesRotation();
+        angles += angularvel * dt;
+        
 		bodies[i]->setVelocity(vel);
 		bodies[i]->setPosition(pos);
+        bodies[i]->setAxesRotation(angles);
+        
+        bodies[i]->updateMatrices();
 	}
 }
 

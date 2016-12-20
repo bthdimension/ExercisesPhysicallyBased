@@ -2,7 +2,7 @@
 #define UTILS_H
 
 #include "bRenderer.h"
-#include <Dense>
+#include <eigen3/Eigen/Dense>
 
 
 using namespace Eigen;
@@ -29,6 +29,15 @@ public:
 		}
 		return output;
 	}
+    
+    static vmml::Vector3f EigenTovec3fVmml(Vector3f input) {
+        vmml::Vector3f output = vmml::Vector3f();
+        for (int i = 0; i < 3; i++) {
+            output(i) = input(i);
+        }
+        return output;
+    }
+    
 
 };
 

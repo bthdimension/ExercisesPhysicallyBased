@@ -5,7 +5,7 @@
 #include "SphereRigidBody.h"
 #include "ARigidBodyOctree.h"
 #include "Utils.h"
-#include <Dense>
+#include <eigen3/Eigen/Dense>
 
 using namespace Eigen;
 
@@ -14,14 +14,19 @@ struct SimplexP {
 	Vector3f s;
 	Vector3f a;
 	Vector3f b;
+    
+    bool operator==(const SimplexP &r) const { return s == r.s; }
 };
 
 
 struct ConstraintInformation {
+    bool col;
 	float penetrationDepth;
 	Vector3f n;
 	Vector3f rA;
 	Vector3f rB;
+    Vector3f contactPointa;
+    Vector3f contactPointb;
 };
 
 
@@ -63,7 +68,7 @@ public:
 	static void findClosestTriangle(std::vector<Triangle> & triangles, Triangle & closestTriangle, float & distance, Vector3f & closestN);
 	static void produceConstraintInformation(Triangle & triangle, ConstraintInformation & info);
 
-	static void barycentric(const Vector3f & p, const Vector3f & a, const Vector3f & b, const Vector3f & c, float & u, float & v, float & w);
+	static void barycentric(const Vector3f & p, const Vector3f & a, const Vector3f & b, const Vector3f & c, float * u, float * v, float * w);
 
 };
 

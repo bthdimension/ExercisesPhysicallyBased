@@ -80,7 +80,7 @@ void Scene::update(const double &deltaTime) {
 	_solver->createConstraintCheckMatrix((int)_rigidBodies.size());
 	_octTree->collide();
 	_solver->assembleMatrices(_rigidBodies);
-	_solver->solveForLambda((float) deltaTime * 0.5, 20);
+	_solver->solveForLambda((float) deltaTime * 0.5, 8);
 	_solver->computeNewVelocity((float) deltaTime * 0.5, _rigidBodies);
 
 	for (std::vector<ARigidBodyOctree*>::size_type i = 0; i != _rigidBodies.size(); i++) {

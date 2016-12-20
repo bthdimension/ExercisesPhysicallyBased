@@ -3,7 +3,7 @@
 
 #include "bRenderer.h"
 #include "headers/IRigidBody.h"
-#include <Dense>
+#include <eigen3/Eigen/Dense>
 
 class OctTreeNode; // forward declaratio
 typedef std::shared_ptr< OctTreeNode >  OctTreeNodePtr; // forward declaration
@@ -37,6 +37,7 @@ public:
 	int getIndex();
 
 	std::vector<Vector3f> getVertices();
+    std::vector<Vector3f> getWorldVertices();
 
 	virtual bool isFixed() = 0;
 

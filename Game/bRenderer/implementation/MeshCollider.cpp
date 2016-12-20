@@ -89,53 +89,54 @@ bool MeshCollider::doesIntersect(MeshCollider *meshCollider, CollisionInformatio
 		}
 		else {
 			// we are no perfect sphere, so we go through our polygons to find intersections
-			if (intersectBoundingBoxes(getBoundingVolumeWorldSpace(), meshCollider->getBoundingVolumeWorldSpace())) {
-				return GJK(meshCollider, collisionInformation);
-			}
+//			if (intersectBoundingBoxes(getBoundingVolumeWorldSpace(), meshCollider->getBoundingVolumeWorldSpace())) {
+//				return GJK(meshCollider, collisionInformation);
+//			}
+            return false;
 		}
 		return false;
 }
 
-bool MeshCollider::doesIntersectTriangleIntersection(MeshCollider *meshCollider)
-{
-		if (_isPerfectSphere && meshCollider->isPerfectSphere())
-		{
-			return intersectBoundingVolumes(meshCollider->getBoundingVolumeWorldSpace(), nullptr, true);
-		}
-		else if (_isPerfectSphere)
-		{
-			// go through all polygons of other mesh collider -> the other collider should do that itself
-			return meshCollider->doesIntersect(this, nullptr);
-		}
-		else {
-			// we are no perfect sphere, so we go through our polygons to find intersections
-			if (intersectBoundingBoxes(getBoundingVolumeWorldSpace(), meshCollider->getBoundingVolumeWorldSpace())) {
-				for (auto i = _triangles.begin(); i != _triangles.end(); ++i) {
-					for (auto t = i->second.begin(); t != i->second.end(); ++t)
-						// see if our polygon intersects the other collider (other collider could also be perfect sphere and just collide with that)
-						if (meshCollider->doesIntersect(getColliderTriangleWorld(*t)))
-							return true;
-				}
-			}
-		}
-		return false;
-}
-
-bool MeshCollider::doesIntersect(MeshTriangle &colliderTriangle)
-{
-	// TODO
-	/*if (_isPerfectSphere) {
-		return doesIntersectBoundingSphere(getBoundingBoxWorldSpace(), colliderTriangle, true);
-	}
-	else*/ {
-		for (auto i = _triangles.begin(); i != _triangles.end(); ++i) {
-			for (auto t = i->second.begin(); t != i->second.end(); ++t)
-				if (doesIntersect(getColliderTriangleWorld(*t), colliderTriangle))
-					return true;
-		}
-	}
-	return false;
-}
+//bool MeshCollider::doesIntersectTriangleIntersection(MeshCollider *meshCollider)
+//{
+//		if (_isPerfectSphere && meshCollider->isPerfectSphere())
+//		{
+//			return intersectBoundingVolumes(meshCollider->getBoundingVolumeWorldSpace(), nullptr, true);
+//		}
+//		else if (_isPerfectSphere)
+//		{
+//			// go through all polygons of other mesh collider -> the other collider should do that itself
+//			return meshCollider->doesIntersect(this, nullptr);
+//		}
+//		else {
+//			// we are no perfect sphere, so we go through our polygons to find intersections
+//			if (intersectBoundingBoxes(getBoundingVolumeWorldSpace(), meshCollider->getBoundingVolumeWorldSpace())) {
+//				for (auto i = _triangles.begin(); i != _triangles.end(); ++i) {
+//					for (auto t = i->second.begin(); t != i->second.end(); ++t)
+//						// see if our polygon intersects the other collider (other collider could also be perfect sphere and just collide with that)
+//						if (meshCollider->doesIntersect(getColliderTriangleWorld(*t)))
+//							return true;
+//				}
+//			}
+//		}
+//		return false;
+//}
+//
+//bool MeshCollider::doesIntersect(MeshTriangle &colliderTriangle)
+//{
+//	// TODO
+//	/*if (_isPerfectSphere) {
+//		return doesIntersectBoundingSphere(getBoundingBoxWorldSpace(), colliderTriangle, true);
+//	}
+//	else*/ {
+//		for (auto i = _triangles.begin(); i != _triangles.end(); ++i) {
+//			for (auto t = i->second.begin(); t != i->second.end(); ++t)
+//				if (doesIntersect(getColliderTriangleWorld(*t), colliderTriangle))
+//					return true;
+//		}
+//	}
+//	return false;
+//}
 
 bool MeshCollider::intersectBoundingVolumes(const vmml::AABBf &boundingVolumeWorld, CollisionInformation *collisionInformation, bool isSphere)
 {
@@ -291,38 +292,38 @@ float MeshCollider::getMaxAbsVectorValue(const vmml::Vector3f &vector)
 }
 
 
-bool MeshCollider::GJK(MeshCollider *meshCollider, CollisionInformation *collisionInformation)
-{
-	vmml::Vector3f direction = { 1,0,0 };
-
-	std::vector<SupportPoint> simplex;
-	simplex.push_back(supportFunction(meshCollider, direction));
-
-	if (abs(direction.dot(simplex[0].diff)) >= simplex[0].diff.norm() *0.8f) {
-		// the chosen direction is invalid, will produce (0,0,0) for a subsequent direction later
-		direction = { 0,1,0 };
-		simplex[0] = supportFunction(meshCollider, direction);
-	}
-
-	direction = -simplex[0].diff;
-
-	int n = 0;
-	while (n < MAXITER)
-	{
-		simplex.push_back(supportFunction(meshCollider, direction));
-
-		if (simplex.back().diff.dot(direction) <= 0)
-			return false;
-		else if (checkSimplex(simplex, direction)) {
-			collisionInformation->collisionOccured = true;
-			EPA(meshCollider, collisionInformation, simplex); // find minimum translation vector
-			return true;
-		}
-		n++;
-	}
-
-}
-
+//bool MeshCollider::GJK(MeshCollider *meshCollider, CollisionInformation *collisionInformation)
+//{
+//	vmml::Vector3f direction = { 1,0,0 };
+//
+//	std::vector<SupportPoint> simplex;
+//	simplex.push_back(supportFunction(meshCollider, direction));
+//
+//	if (abs(direction.dot(simplex[0].diff)) >= simplex[0].diff.norm() *0.8f) {
+//		// the chosen direction is invalid, will produce (0,0,0) for a subsequent direction later
+//		direction = { 0,1,0 };
+//		simplex[0] = supportFunction(meshCollider, direction);
+//	}
+//
+//	direction = -simplex[0].diff;
+//
+//	int n = 0;
+//	while (n < MAXITER)
+//	{
+//		simplex.push_back(supportFunction(meshCollider, direction));
+//
+//		if (simplex.back().diff.dot(direction) <= 0)
+//			return false;
+//		else if (checkSimplex(simplex, direction)) {
+//			collisionInformation->collisionOccured = true;
+//			EPA(meshCollider, collisionInformation, simplex); // find minimum translation vector
+//			return true;
+//		}
+//		n++;
+//	}
+//
+//}
+//
 void vectorBasis(const vmml::Vector3f &normal, vmml::Vector3f &tangent, vmml::Vector3f &bitangent)
 {
 	if (normal.x() >= 0.57735f)
@@ -334,221 +335,221 @@ void vectorBasis(const vmml::Vector3f &normal, vmml::Vector3f &tangent, vmml::Ve
 	bitangent = normal.cross(tangent);
 }
 
-bool MeshCollider::EPA(MeshCollider *meshCollider, CollisionInformation *collisionInformation, std::vector<SupportPoint> &simplex)
-{
-	const float THRESH = 0.001f;
-	SupportPointEdgesList edges;
-	SupportPointTrianglesList triangles;
-
-	triangles.push_back({ simplex[3],simplex[2],simplex[1] });
-	triangles.push_back({ simplex[3],simplex[1],simplex[0] });
-	triangles.push_back({ simplex[3],simplex[0],simplex[2] });
-	triangles.push_back({ simplex[2],simplex[0],simplex[1] });
-
-	int n = 0;
-	while (n < MAXITER)
-	{
-		// find closest face to origin
-		auto currentTriangleIt = triangles.begin();
-		float distance = FLT_MAX;
-		for (auto it = triangles.begin(); it != triangles.end(); it++) {
-			float dst = abs(it->normal.dot( it->atDiff(0) ));
-			if (dst < distance) {
-				distance = dst;
-				currentTriangleIt = it;
-			}
-		}
-		vmml::Vector3f n = currentTriangleIt._Ptr->normal;
-
-		SupportPoint currentSupport = supportFunction(meshCollider,n);
-		if ((n.dot( currentSupport.diff ) - distance < THRESH)) {			
-			return contactInformation(currentTriangleIt._Ptr, collisionInformation);
-		}
-
-		
-		for (auto it = triangles.begin(); it != triangles.end(); ) {
-			// can face be seen by currentSupport?			
-			if (n.dot(currentSupport.diff - it->atDiff(0)) > 0) {
-				addEdge(edges, it->at(0) , it->at(1));
-				addEdge(edges, it->at(1) , it->at(2));
-				addEdge(edges, it->at(2) , it->at(0));
-				it = triangles.erase(it);
-				continue;
-			}
-			it++;
-		}
-
-		for (auto it = edges.begin(); it != edges.end(); it++) {
-			triangles.push_back({ currentSupport,it->at(0),it->at(1) });
-		}
-		edges.clear();
-	}
-	return true;
-}
-
-
-SupportPoint MeshCollider::supportFunction(MeshCollider *meshCollider, vmml::Vector3f & direction)
-{
-	direction.normalize();
-	SupportPoint sup;
-	sup.a = farthestPointInDirection(direction);
-	sup.b = meshCollider->farthestPointInDirection(-direction);
-	sup.diff = sup.a - sup.b;
-	return sup;
-}
-
-vmml::Vector3f MeshCollider::farthestPointInDirection(const vmml::Vector3f & direction)
-{
-	// find vertex with with the highest dot product with the direction
-	vmml::Vector3f farthest = _rigidBody->getWorldMatrix()*_vertices.at(0);
-	vmml::Vector3f directionObjSpace = direction;	// work in object space so we don't have to transform every triangle
-	directionObjSpace.normalize();
-	float max = directionObjSpace.dot(farthest);
-
-	vmml::Vector3f temp;
-
-	for (int i = 1; i < _vertices.size(); i++)
-	{
-		temp = _rigidBody->getWorldMatrix()*_vertices.at(i);
-		float projection = directionObjSpace.dot(temp);
-		if (projection > max)
-		{
-			farthest = temp;
-			max = projection;
-		}
-	}
-
-	return farthest;
-}
-
-bool MeshCollider::checkSimplex(std::vector<SupportPoint> &simplex, vmml::Vector3f & direction)
-{
-	int simplexSize = simplex.size();
-
-	SupportPoint a = simplex[simplexSize - 1]; // a needs to be newest point for algorithm to work!
-	SupportPoint b = simplex[simplexSize  -2];
-	vmml::Vector3f aToOrigin = -a.diff;
-	vmml::Vector3f ab = b.diff - a.diff;
-	bool not4 = true;
-	if (simplexSize == 4)
-	{
-		not4 = false;
-		SupportPoint c = simplex[simplexSize - 3];
-		SupportPoint d = simplex[simplexSize - 4];
-		vmml::Vector3f ac = c.diff - a.diff;
-		vmml::Vector3f ad = d.diff - a.diff;
+//bool MeshCollider::EPA(MeshCollider *meshCollider, CollisionInformation *collisionInformation, std::vector<SupportPoint> &simplex)
+//{
+//	const float THRESH = 0.001f;
+//	SupportPointEdgesList edges;
+//	SupportPointTrianglesList triangles;
+//
+//	triangles.push_back({ simplex[3],simplex[2],simplex[1] });
+//	triangles.push_back({ simplex[3],simplex[1],simplex[0] });
+//	triangles.push_back({ simplex[3],simplex[0],simplex[2] });
+//	triangles.push_back({ simplex[2],simplex[0],simplex[1] });
+//
+//	int n = 0;
+//	while (n < MAXITER)
+//	{
+//		// find closest face to origin
+//		auto currentTriangleIt = triangles.begin();
+//		float distance = FLT_MAX;
+//		for (auto it = triangles.begin(); it != triangles.end(); it++) {
+//			float dst = abs(it->normal.dot( it->atDiff(0) ));
+//			if (dst < distance) {
+//				distance = dst;
+//				currentTriangleIt = it;
+//			}
+//		}
+//		vmml::Vector3f n = currentTriangleIt._Ptr->normal;
+//
+//		SupportPoint currentSupport = supportFunction(meshCollider,n);
+//		if ((n.dot( currentSupport.diff ) - distance < THRESH)) {			
+//			return contactInformation(currentTriangleIt._Ptr, collisionInformation);
+//		}
+//
+//		
+//		for (auto it = triangles.begin(); it != triangles.end(); ) {
+//			// can face be seen by currentSupport?			
+//			if (n.dot(currentSupport.diff - it->atDiff(0)) > 0) {
+//				addEdge(edges, it->at(0) , it->at(1));
+//				addEdge(edges, it->at(1) , it->at(2));
+//				addEdge(edges, it->at(2) , it->at(0));
+//				it = triangles.erase(it);
+//				continue;
+//			}
+//			it++;
+//		}
+//
+//		for (auto it = edges.begin(); it != edges.end(); it++) {
+//			triangles.push_back({ currentSupport,it->at(0),it->at(1) });
+//		}
+//		edges.clear();
+//	}
+//	return true;
+//}
 
 
-		if ((ab.cross(ac)).dot(aToOrigin) > 0)
-		{
-			// do triangle stuff
-		}
-		else if ((ac.cross(ad)).dot(aToOrigin) > 0)
-		{
-			// origin is in front of triangle acd
-			simplex = { d,c,a };
-		}
-		else if ((ad.cross(ab)).dot(aToOrigin) > 0)
-		{
-			// origin is in front of triangle adb
-			simplex = { b,d,a };
-		}
-		else {
-			// origin within
-			return true;
-		}
-	}
-
-	// here not else if since we may just have set a 3 point simplex above
-	if (simplexSize >= 3) // triangle
-	{
-		SupportPoint c = simplex[simplexSize - 3];
-		vmml::Vector3f ac = c.diff - a.diff;
-		vmml::Vector3f abc = ab.cross(ac);
-		if ((abc.cross(ac)).dot(aToOrigin) > 0) // origin near ac edge outside trianle
-		{
-			simplex = { c, a };
-			direction = ac.cross(aToOrigin).cross(ac);
-		}
-		else if ((ab.cross(abc)).dot(aToOrigin) > 0) // origin near ab edge outside trianle
-		{
-			simplex = { b, a };
-			direction = ab.cross(aToOrigin).cross(ab);			
-		}
-		else if (abc.dot(aToOrigin)> 0) // origin above triangle
-		{
-			simplex = { c,b,a };
-			direction = abc;
-		}
-		else if (not4) { // origin below triangle
-			simplex = { b,c,a };
-			direction = -abc;
-		}
-	}
-	else // line
-	{		
-		direction = ab.cross(aToOrigin).cross(ab);
-	}
-	direction.normalize();
-	return false;
-
-}
-
-void MeshCollider::addEdge(SupportPointEdgesList &edges, SupportPoint &a, SupportPoint &b)
-{
-	for (auto it = edges.begin(); it != edges.end(); it++) {
-		if (it->at(0) == b && it->at(1) == a) {
-			//opposite edge found, remove it and do not add new one
-			edges.erase(it);
-			return;
-		}
-	}
-	SupportPointEdge edge = { a, b };
-	edges.push_back(edge);
-}
-
-void barycentric(const vmml::Vector3f &p, const vmml::Vector3f &a, const vmml::Vector3f &b, const vmml::Vector3f &c, float *u, float *v, float *w) {
-	// code from Crister Erickson's Real-Time Collision Detection
-	vmml::Vector3f v0 = b - a, v1 = c - a, v2 = p - a;
-	float d00 = v0.dot(v0);
-	float d01 = v0.dot(v1);
-	float d11 = v1.dot(v1);
-	float d20 = v2.dot(v0);
-	float d21 = v2.dot(v1);
-	float denom = d00 * d11 - d01 * d01;
-	*v = (d11 * d20 - d01 * d21) / denom;
-	*w = (d00 * d21 - d01 * d20) / denom;
-	*u = 1.0f - *v - *w;
-}
-
-bool MeshCollider::contactInformation(SupportPointTriangle *triangle, CollisionInformation *collisionInformation)
-{
-	float distanceFromOrigin = triangle->normal.dot(triangle->atDiff(0));
-
-	float bary_u, bary_v, bary_w;
-
-	barycentric(triangle->normal * distanceFromOrigin,
-		triangle->atDiff(0),
-		triangle->atDiff(1),
-		triangle->atDiff(2),
-		&bary_u,
-		&bary_v,
-		&bary_w);
-
-	// validation
-	if (bary_u != bary_u || bary_v != bary_v || bary_w != bary_w
-		|| abs(bary_u) > 1.0f || abs(bary_v) > 1.0f || abs(bary_w) > 1.0f)
-		return false;
-
-	collisionInformation->colPoint =			bary_u * triangle->at(0).a +
-												bary_v * triangle->at(1).a +
-												bary_w * triangle->at(2).a;
-	collisionInformation->colNormal =			-triangle->normal;
-	collisionInformation->penetratonDepth =		distanceFromOrigin;
-	collisionInformation->collisionOccured =	true;
-
-	return true;
-}
+//SupportPoint MeshCollider::supportFunction(MeshCollider *meshCollider, vmml::Vector3f & direction)
+//{
+//	direction.normalize();
+//	SupportPoint sup;
+//	sup.a = farthestPointInDirection(direction);
+//	sup.b = meshCollider->farthestPointInDirection(-direction);
+//	sup.diff = sup.a - sup.b;
+//	return sup;
+//}
+//
+//vmml::Vector3f MeshCollider::farthestPointInDirection(const vmml::Vector3f & direction)
+//{
+//	// find vertex with with the highest dot product with the direction
+//	vmml::Vector3f farthest = _rigidBody->getWorldMatrix()*_vertices.at(0);
+//	vmml::Vector3f directionObjSpace = direction;	// work in object space so we don't have to transform every triangle
+//	directionObjSpace.normalize();
+//	float max = directionObjSpace.dot(farthest);
+//
+//	vmml::Vector3f temp;
+//
+//	for (int i = 1; i < _vertices.size(); i++)
+//	{
+//		temp = _rigidBody->getWorldMatrix()*_vertices.at(i);
+//		float projection = directionObjSpace.dot(temp);
+//		if (projection > max)
+//		{
+//			farthest = temp;
+//			max = projection;
+//		}
+//	}
+//
+//	return farthest;
+//}
+//
+//bool MeshCollider::checkSimplex(std::vector<SupportPoint> &simplex, vmml::Vector3f & direction)
+//{
+//	int simplexSize = simplex.size();
+//
+//	SupportPoint a = simplex[simplexSize - 1]; // a needs to be newest point for algorithm to work!
+//	SupportPoint b = simplex[simplexSize  -2];
+//	vmml::Vector3f aToOrigin = -a.diff;
+//	vmml::Vector3f ab = b.diff - a.diff;
+//	bool not4 = true;
+//	if (simplexSize == 4)
+//	{
+//		not4 = false;
+//		SupportPoint c = simplex[simplexSize - 3];
+//		SupportPoint d = simplex[simplexSize - 4];
+//		vmml::Vector3f ac = c.diff - a.diff;
+//		vmml::Vector3f ad = d.diff - a.diff;
+//
+//
+//		if ((ab.cross(ac)).dot(aToOrigin) > 0)
+//		{
+//			// do triangle stuff
+//		}
+//		else if ((ac.cross(ad)).dot(aToOrigin) > 0)
+//		{
+//			// origin is in front of triangle acd
+//			simplex = { d,c,a };
+//		}
+//		else if ((ad.cross(ab)).dot(aToOrigin) > 0)
+//		{
+//			// origin is in front of triangle adb
+//			simplex = { b,d,a };
+//		}
+//		else {
+//			// origin within
+//			return true;
+//		}
+//	}
+//
+//	// here not else if since we may just have set a 3 point simplex above
+//	if (simplexSize >= 3) // triangle
+//	{
+//		SupportPoint c = simplex[simplexSize - 3];
+//		vmml::Vector3f ac = c.diff - a.diff;
+//		vmml::Vector3f abc = ab.cross(ac);
+//		if ((abc.cross(ac)).dot(aToOrigin) > 0) // origin near ac edge outside trianle
+//		{
+//			simplex = { c, a };
+//			direction = ac.cross(aToOrigin).cross(ac);
+//		}
+//		else if ((ab.cross(abc)).dot(aToOrigin) > 0) // origin near ab edge outside trianle
+//		{
+//			simplex = { b, a };
+//			direction = ab.cross(aToOrigin).cross(ab);			
+//		}
+//		else if (abc.dot(aToOrigin)> 0) // origin above triangle
+//		{
+//			simplex = { c,b,a };
+//			direction = abc;
+//		}
+//		else if (not4) { // origin below triangle
+//			simplex = { b,c,a };
+//			direction = -abc;
+//		}
+//	}
+//	else // line
+//	{		
+//		direction = ab.cross(aToOrigin).cross(ab);
+//	}
+//	direction.normalize();
+//	return false;
+//
+//}
+//
+//void MeshCollider::addEdge(SupportPointEdgesList &edges, SupportPoint &a, SupportPoint &b)
+//{
+//	for (auto it = edges.begin(); it != edges.end(); it++) {
+//		if (it->at(0) == b && it->at(1) == a) {
+//			//opposite edge found, remove it and do not add new one
+//			edges.erase(it);
+//			return;
+//		}
+//	}
+//	SupportPointEdge edge = { a, b };
+//	edges.push_back(edge);
+//}
+//
+//void barycentric(const vmml::Vector3f &p, const vmml::Vector3f &a, const vmml::Vector3f &b, const vmml::Vector3f &c, float *u, float *v, float *w) {
+//	// code from Crister Erickson's Real-Time Collision Detection
+//	vmml::Vector3f v0 = b - a, v1 = c - a, v2 = p - a;
+//	float d00 = v0.dot(v0);
+//	float d01 = v0.dot(v1);
+//	float d11 = v1.dot(v1);
+//	float d20 = v2.dot(v0);
+//	float d21 = v2.dot(v1);
+//	float denom = d00 * d11 - d01 * d01;
+//	*v = (d11 * d20 - d01 * d21) / denom;
+//	*w = (d00 * d21 - d01 * d20) / denom;
+//	*u = 1.0f - *v - *w;
+//}
+//
+//bool MeshCollider::contactInformation(SupportPointTriangle *triangle, CollisionInformation *collisionInformation)
+//{
+//	float distanceFromOrigin = triangle->normal.dot(triangle->atDiff(0));
+//
+//	float bary_u, bary_v, bary_w;
+//
+//	barycentric(triangle->normal * distanceFromOrigin,
+//		triangle->atDiff(0),
+//		triangle->atDiff(1),
+//		triangle->atDiff(2),
+//		&bary_u,
+//		&bary_v,
+//		&bary_w);
+//
+//	// validation
+//	if (bary_u != bary_u || bary_v != bary_v || bary_w != bary_w
+//		|| abs(bary_u) > 1.0f || abs(bary_v) > 1.0f || abs(bary_w) > 1.0f)
+//		return false;
+//
+//	collisionInformation->colPoint =			bary_u * triangle->at(0).a +
+//												bary_v * triangle->at(1).a +
+//												bary_w * triangle->at(2).a;
+//	collisionInformation->colNormal =			-triangle->normal;
+//	collisionInformation->penetratonDepth =		distanceFromOrigin;
+//	collisionInformation->collisionOccured =	true;
+//
+//	return true;
+//}
 
 
 std::vector< vmml::Vector3f > MeshCollider::getVertices() {

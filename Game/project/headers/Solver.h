@@ -12,7 +12,7 @@
 #include "bRenderer.h"
 #include "ARigidBodyOctree.h"
 #include "SupportPointCalculator.h"
-#include <Dense>
+#include <eigen3/Eigen/Dense>
 
 
 using namespace Eigen;
@@ -52,13 +52,15 @@ private:
 	MatrixXf _M; // mass and inertia of all objects
 	MatrixXf _Minv; // inverse M
 	VectorXf _v; // linear and angular velocity
+    VectorXf _v2; // linear and angular velocity2
 	VectorXf _Fext; // external forces
 	MatrixXf _J; // jacobian
 	MatrixXf _Jtrans; // transposed jacobian
 	MatrixXf _B; // M^-1 * J^T
 	MatrixXi _Jmap; // sparse jacobian map
 	VectorXf _lambda; // Lambda of last step
-    
+    VectorXf _bias;
+    VectorXf _zeta;
 };
 
 

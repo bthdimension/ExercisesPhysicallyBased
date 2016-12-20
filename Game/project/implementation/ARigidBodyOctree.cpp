@@ -28,9 +28,21 @@ int ARigidBodyOctree::getIndex() {
 
 std::vector<Vector3f> ARigidBodyOctree::getVertices() {
 	std::vector<Vector3f> worldVertices = std::vector<Vector3f>();
+    std::vector<Vector3f> bVertices = std::vector<Vector3f>();
 	std::vector<vmml::Vector3f> bodyVertices = getMeshCollider()->getVertices();
 	for (std::vector<vmml::Vector3f>::size_type i = 0; i != bodyVertices.size(); i++) {
-		worldVertices.push_back(Utils::vec3fVmmlToEigen(getWorldMatrix() * bodyVertices[i]));
+        bVertices.push_back(Utils::vec3fVmmlToEigen(bodyVertices[i]));
 	}
-	return worldVertices;
+    return bVertices; //worldVertices;
 }
+
+std::vector<Vector3f> ARigidBodyOctree::getWorldVertices() {
+    std::vector<Vector3f> worldVertices = std::vector<Vector3f>();
+    std::vector<Vector3f> bVertices = std::vector<Vector3f>();
+    std::vector<vmml::Vector3f> bodyVertices = getMeshCollider()->getVertices();
+    for (std::vector<vmml::Vector3f>::size_type i = 0; i != bodyVertices.size(); i++) {
+        worldVertices.push_back(Utils::vec3fVmmlToEigen(getWorldMatrix() * bodyVertices[i]));
+    }
+    return worldVertices;
+}
+
