@@ -31,6 +31,8 @@ struct ConstraintInformation {
 	Vector3f rB;
     Vector3f contactPointa;
     Vector3f contactPointb;
+    
+    float conVal; //constraint value
 };
 
 

@@ -59,7 +59,7 @@ private:
 	MatrixXf _B; // M^-1 * J^T
 	MatrixXi _Jmap; // sparse jacobian map
 	VectorXf _lambda; // Lambda of last step
-    VectorXf _bias;
+    VectorXf _constraint;
     VectorXf _zeta;
 };
 

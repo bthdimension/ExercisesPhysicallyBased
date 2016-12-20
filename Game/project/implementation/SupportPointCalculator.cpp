@@ -87,13 +87,7 @@ ConstraintInformation SupportPointCalculator::getContraintInformation(ARigidBody
                 
                 info.rA = info.contactPointa - midA;
                 info.rB = info.contactPointb - midB;
-//                std::cout << "contactaWorld " << std::endl << conPointBodyA << std::endl << std::endl;
-//                std::cout << "contactbWorld " << std::endl << conPointBodyB << std::endl << std::endl;
-//                std::cout << "contactPointa " << std::endl << info.contactPointa << std::endl << std::endl;
-//                std::cout << "contactPointb " << std::endl << info.contactPointb << std::endl << std::endl;
-//                std::cout << "rA " << std::endl << info.rA << std::endl << std::endl;
-//                std::cout << "rB " << std::endl << info.rB << std::endl << std::endl;
-//                std::cout << midB << std::endl << std::endl;
+                
             } else {
                 info.penetrationDepth = -1.0; // no penetration
             }
@@ -335,7 +329,7 @@ void SupportPointCalculator::epa(Vector3f & midA, Vector3f & midB, std::vector<V
         
         if(closestTriangle.a == closestTriangle.b || closestTriangle.a == closestTriangle.c){
             std::cout << "something happend" << std::endl;
-            findClosestTriangle(triangles, closestTriangle, distance, closestN);
+//            findClosestTriangle(triangles, closestTriangle, distance, closestN);
         }
         
 		if ( closestN.dot(currentSupport.s) - distance < THRESH) {
@@ -374,6 +368,10 @@ void SupportPointCalculator::findClosestTriangle(std::vector<Triangle> & triangl
 		Triangle triangle = triangles[i];
 		Vector3f triNormal = triangle.getNormal();
         float triDist = std::fabs(triNormal.dot(triangle.a.s));
+//        if (triDist < 0){
+//            triNormal *= -1;
+//            triDist *= -1;
+//        }
         
 		if (triDist < distance) {
 			distance = triDist;
@@ -388,8 +386,8 @@ void SupportPointCalculator::findClosestTriangle(std::vector<Triangle> & triangl
 void SupportPointCalculator::produceConstraintInformation(Triangle & triangle, ConstraintInformation & info) {
 
 	info.penetrationDepth = triangle.a.s.dot(triangle.getNormal());
+    Vector3f collisionPoint = info.n * info.penetrationDepth;
     
-	Vector3f collisionPoint = info.n * info.penetrationDepth;
 
 	float u;
 	float v;
@@ -412,6 +410,8 @@ void SupportPointCalculator::produceConstraintInformation(Triangle & triangle, C
     
 //    info.contactPointa = {0.f,0.f,0.f};
 //    info.contactPointb = {0.f,0.f,0.f};
+    
+    
     // from body a to b
     info.n = triangle.getNormal();
     info.col = true;

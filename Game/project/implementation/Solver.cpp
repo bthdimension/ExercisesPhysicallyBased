@@ -42,7 +42,7 @@ void Solver::registerConstraint(ARigidBodyOctree* a, ARigidBodyOctree* b, Constr
 void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 
 	_6n = (int) bodies.size() * 6;
-	_s = _constraintStack.size();
+	_s = (int) _constraintStack.size();
 
 
 	// Mass, veloctiy and external force matrices
@@ -51,7 +51,7 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 	_v = ArrayXf::Zero(_6n);
 	_Fext = ArrayXf::Zero(_6n);
     
-    _bias = VectorXf::Ones(_s);
+    _constraint = VectorXf::Zero(_s);
     _zeta = VectorXf::Zero(_s);
 
 	int offset;
@@ -103,14 +103,16 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 	int body1offset;
 	int body2offset;
 	int row;
-    
-    float alpha = 0.0f;
 
 	for (std::vector<ConstraintStackElement>::size_type i = 0; i != _constraintStack.size(); i++) {
 
 		body1 = _constraintStack[i].a;
 		body2 = _constraintStack[i].b;
 
+        Vector3f posA = Utils::vec3fVmmlToEigen(body1->getPosition());
+        Vector3f posB = Utils::vec3fVmmlToEigen(body2->getPosition());
+        
+        
 		body1offset = body1->getIndex() * 6;
 		body2offset = body2->getIndex() * 6;
 		row = (int)i;
@@ -122,9 +124,11 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		} else {
 			_J.block<1, 3>(i, body1offset) = -constraintInfo.n.transpose();
 			_J.block<1, 3>(i, body1offset + 3) = -(constraintInfo.rA.cross(constraintInfo.n).transpose());
-		} 
+
+		}
 		if (body2->isFixed()) {
 			_J.block<1, 6>(i, body2offset) = ArrayXXf::Zero(1, 6);
+
 		} else {
 			_J.block<1, 3>(i, body2offset) = constraintInfo.n.transpose();
 			_J.block<1, 3>(i, body2offset + 3) = constraintInfo.rB.cross(constraintInfo.n).transpose();
@@ -133,11 +137,13 @@ void Solver::assembleMatrices(std::vector<ARigidBodyOctree*> bodies) {
 		_Jmap(i, 0) = body1->getIndex();
 		_Jmap(i, 1) = body2->getIndex();
         
-        _bias(i) = (Utils::vec3fVmmlToEigen(body2->getPosition()) + constraintInfo.rB - Utils::vec3fVmmlToEigen(body1->getPosition()) - constraintInfo.rA).dot( constraintInfo.n );
-        _bias(i) += alpha * (Utils::vec3fVmmlToEigen(body2->getVelocity()) +
-                           Utils::vec3fVmmlToEigen(body2->getAngularVelocity()).cross(constraintInfo.rB) -
-                           Utils::vec3fVmmlToEigen(body1->getVelocity()) -
-                           Utils::vec3fVmmlToEigen(body1->getAngularVelocity()).cross(constraintInfo.rA)).dot( constraintInfo.n );
+        _constraint(row) = (posB + constraintInfo.rB - (posA + constraintInfo.rA)).dot( constraintInfo.n );
+
+//        _bias(i) += alpha * (Utils::vec3fVmmlToEigen(body2->getVelocity()) +
+//                           Utils::vec3fVmmlToEigen(body2->getAngularVelocity()).cross(constraintInfo.rB) -
+//                           Utils::vec3fVmmlToEigen(body1->getVelocity()) -
+//                           Utils::vec3fVmmlToEigen(body1->getAngularVelocity()).cross(constraintInfo.rA)).dot( constraintInfo.n );
+
         
 	}
 	_constraintStack.clear();
@@ -163,7 +169,7 @@ void Solver::solveForLambda(float dt, int iterations) {
 	//std::cout << "B = " << std::endl << _B << std::endl << std::endl;
 	//std::cout << "lamdba0 = " << std::endl << lambda0 << std::endl << std::endl;
 
-    _zeta = _J * _v;
+    
 
 	_lambda = lambda0;
 	VectorXf a = _B * _lambda;
@@ -182,10 +188,12 @@ void Solver::solveForLambda(float dt, int iterations) {
 		lambdaMax(i) = 9999.9f; // TODO: what is best upper bound
 	}
 
-    float beta = 0.7f / dt;
+    float beta = 0.3f;
     
-	VectorXf eta = - beta * _bias / dt  -_J * (((1 / dt) * _v) + (_Minv * _Fext));
-
+//    std::cout << _constraint << std::endl << std::endl;
+    
+	VectorXf eta = - beta * _constraint / dt  -_J * (((1.f / dt) * _v) + (_Minv * _Fext));
+//    eta -= _zeta /dt;
 
 	for (int iter = 0; iter < iterations; iter++) {
 
@@ -218,7 +226,7 @@ void Solver::computeNewVelocity(float dt, std::vector<ARigidBodyOctree*> bodies)
 	//std::cout << "_lamdba = " << std::endl << _lambda << std::endl << std::endl;
 	//std::cout << "_Fext = " << std::endl << _Fext << std::endl << std::endl;
     
-
+//    _zeta = _J * _v2;
     
 	int index;
 	int offset;

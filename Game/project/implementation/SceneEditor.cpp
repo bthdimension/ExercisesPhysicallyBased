@@ -18,7 +18,7 @@ SceneEditor::SceneEditor(Scene* scene, ModelRendererPtr modelRenderer, InputCont
 
 
 void SceneEditor::createDebugScene() {
-	for (int i = 1; i < 20; i++) {
+	for (int i = 1; i < 2; i++) {
 		float j = i * 5.f;
 		ModelPtr modelptr = _modelRenderer->getObjectManager()->getModel("block");
 		vmml::Vector3f pos = vmml::Vector3f(0.0f + (float) (2 % 2), j + 1.0f, 0.0f);
